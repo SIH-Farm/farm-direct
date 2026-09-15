@@ -1,0 +1,17 @@
+{
+  "name": "farm-direct",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Digital marketplace connecting Indian farmers directly with consumers",
+  "workspaces": [
+    "apps/client",
+    "apps/server"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/client & npm run dev --workspace=apps/server",
+    "dev:client": "npm run dev --workspace=apps/client",
+    "dev:server": "npm run dev --workspace=apps/server",
+    "build": "npm run build --workspace=apps/client",
+    "start": "npm run start --workspace=apps/server"
+  }
+}
