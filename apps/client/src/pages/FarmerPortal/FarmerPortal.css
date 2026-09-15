@@ -1,0 +1,33 @@
+.farmer-portal {
+  padding-top: 100px;
+  padding-bottom: var(--space-16);
+}
+
+.farmer-header {
+  margin-bottom: var(--space-8);
+}
+
+.farmer-title {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  margin-top: var(--space-2);
+}
+
+.stats-row {
+  margin-bottom: var(--space-8);
+}
+
+.portal-content {
+  margin-top: var(--space-6);
+}
+
+.mandi-stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.text-xs {
+  font-size: var(--text-xs);
+}

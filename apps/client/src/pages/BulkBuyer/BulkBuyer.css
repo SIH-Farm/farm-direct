@@ -1,0 +1,14 @@
+.bulk-buyer-page {
+  padding-top: 100px;
+  padding-bottom: var(--space-16);
+}
+
+.bulk-header {
+  margin-bottom: var(--space-6);
+}
+
+.fpo-card {
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}

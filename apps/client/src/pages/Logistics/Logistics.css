@@ -1,0 +1,35 @@
+.logistics-page {
+  padding-top: 100px;
+  padding-bottom: var(--space-16);
+}
+
+.logistics-header {
+  margin-bottom: var(--space-6);
+}
+
+.route-card {
+  padding: var(--space-4);
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.route-card:hover {
+  border-color: var(--color-primary-400);
+}
+
+.route-card.active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-50);
+}
+
+.route-path {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin: var(--space-2) 0;
+}
+
+.map-container-box {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}

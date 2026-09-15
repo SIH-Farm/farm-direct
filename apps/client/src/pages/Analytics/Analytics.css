@@ -1,0 +1,16 @@
+.analytics-page {
+  padding-top: 100px;
+  padding-bottom: var(--space-16);
+}
+
+.analytics-header {
+  margin-bottom: var(--space-8);
+}
+
+.analytics-metrics {
+  margin-bottom: var(--space-6);
+}
+
+.analytics-chart-card {
+  padding: var(--space-6);
+}
