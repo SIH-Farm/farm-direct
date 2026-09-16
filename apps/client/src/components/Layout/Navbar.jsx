@@ -5,7 +5,7 @@ import { useCart } from '../../context/CartContext';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { t, theme, toggleTheme, language, toggleLanguage } = useApp();
+  const { t, theme, toggleTheme, language, toggleLanguage, currentRole, setCurrentRole } = useApp();
   const { totalItems, toggleCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -46,7 +46,28 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="navbar-actions">
+          <div className="role-switcher">
+            <select
+              className="role-select"
+              value={currentRole}
+              onChange={(e) => {
+                const role = e.target.value;
+                setCurrentRole(role);
+                if (role === 'farmer') window.location.hash = '#/farmer';
+                if (role === 'consumer') window.location.hash = '#/marketplace';
+                if (role === 'bulk_buyer') window.location.hash = '#/bulk-buyer';
+                if (role === 'admin') window.location.hash = '#/analytics';
+              }}
+              title="Switch user role"
+              id="role-selector"
+            >
+              <option value="consumer">🛒 Consumer</option>
+              <option value="farmer">🧑‍🌾 Farmer / FPO</option>
+              <option value="bulk_buyer">📦 Bulk Buyer</option>
+              <option value="admin">📊 AI Admin</option>
+            </select>
+          </div>
+
           <button className="nav-btn lang-toggle" onClick={toggleLanguage} id="lang-toggle" title="Switch language">
             {language === 'en' ? 'हि' : 'EN'}
           </button>
@@ -57,7 +78,6 @@ export default function Navbar() {
             🛒
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </button>
-        </div>
       </div>
     </nav>
   );

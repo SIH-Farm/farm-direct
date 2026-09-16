@@ -65,6 +65,7 @@ export default function Logistics() {
         {/* Map Box */}
         <div className="map-container-box card col-span-2">
           <MapContainer
+            key={selectedRoute.id}
             center={[selectedRoute.from.lat, selectedRoute.from.lng]}
             zoom={6}
             style={{ width: '100%', height: '480px', borderRadius: '16px' }}
