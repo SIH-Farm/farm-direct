@@ -1,0 +1,95 @@
+.price-breakdown-card {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.price-breakdown-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.price-main-pill {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.price-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary-600);
+}
+
+.price-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.price-comparison-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.strike {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.saving-badge {
+  background: #dcfce7;
+  color: #15803d;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+
+.price-divider {
+  border-bottom: 1px dashed var(--border-color);
+  margin: 8px 0;
+}
+
+.comp-box {
+  padding: 8px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.mandi-box {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}
+
+.retail-box {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.comp-title {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.comp-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.comp-note {
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+.farmer-bonus-banner {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid #6ee7b7;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: #065f46;
+}

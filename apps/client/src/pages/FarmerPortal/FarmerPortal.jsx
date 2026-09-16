@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { products as initialProducts, farmers, mandiPriceHistory, formatCurrency } from '../../data/mockData';
+import { farmers, mandiPriceHistory } from '../../data/mockData';
+import { calculatePricing, MANDI_BENCHMARKS } from '../../utils/pricingEngine';
+import PriceBreakdown from '../../components/PriceBreakdown/PriceBreakdown';
+import { useToast } from '../../components/UI/Toast';
 import './FarmerPortal.css';
 
 export default function FarmerPortal() {
-  const { currentFarmerId, language } = useApp();
-  const [farmerProducts, setFarmerProducts] = useState(
-    initialProducts.filter(p => p.farmerId === currentFarmerId || p.farmerId === 'F001')
-  );
+  const { currentFarmerId } = useApp();
+  const { addToast } = useToast();
+  const [farmerProducts, setFarmerProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [activeTab, setActiveTab] = useState('listings');
 
-  // New produce form state (fulfilling Module 1 requirement)
+  // New produce form state
   const [formData, setFormData] = useState({
     cropName: '',
     category: 'vegetables',
@@ -28,6 +31,31 @@ export default function FarmerPortal() {
 
   const activeFarmer = farmers.find(f => f.id === currentFarmerId) || farmers[0];
 
+  // Fetch listings from backend API
+  const fetchFarmerProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`http://localhost:3001/api/products?farmerId=${activeFarmer.id}`);
+      const json = await res.json();
+      if (json.success && json.data.length > 0) {
+        setFarmerProducts(json.data);
+      } else {
+        // Fallback fetch all products if farmer specific is empty
+        const allRes = await fetch(`http://localhost:3001/api/products`);
+        const allJson = await allRes.json();
+        if (allJson.success) setFarmerProducts(allJson.data);
+      }
+    } catch (err) {
+      console.warn('API unavailable, using initial data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFarmerProducts();
+  }, [activeFarmer.id]);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -36,11 +64,15 @@ export default function FarmerPortal() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const farmPriceNum = Number(formData.farmPrice);
-    const newListing = {
-      id: `P${Date.now()}`,
+    if (!formData.cropName || !farmPriceNum || !formData.quantity) {
+      addToast('Please fill in crop name, quantity, and price.', 'warning');
+      return;
+    }
+
+    const payload = {
       farmerId: activeFarmer.id,
       farmerName: activeFarmer.name,
       cropName: formData.cropName,
@@ -50,19 +82,40 @@ export default function FarmerPortal() {
       quantity: Number(formData.quantity),
       unit: formData.unit,
       farmPrice: farmPriceNum,
-      platformPrice: Math.round(farmPriceNum * 1.25),
-      retailPrice: Math.round(farmPriceNum * 2.1),
-      mandiPrice: Math.round(farmPriceNum * 1.15),
       grade: formData.grade,
       organic: formData.organic,
       harvestDate: formData.harvestDate,
       location: formData.location,
-      available: true,
-      rating: 5.0,
       description: formData.description || 'Fresh produce directly listed by farmer.',
     };
 
-    setFarmerProducts([newListing, ...farmerProducts]);
+    try {
+      const res = await fetch('http://localhost:3001/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFarmerProducts(prev => [json.data, ...prev]);
+        addToast(`✅ Produce Listing Posted Live! ${payload.quantity}${payload.unit} ${payload.cropName}`, 'success');
+      } else {
+        throw new Error(json.error);
+      }
+    } catch (err) {
+      // Local fallback if server unreachable
+      const newListing = {
+        id: `P${Date.now()}`,
+        ...payload,
+        available: true,
+        rating: 5.0,
+        createdAt: new Date().toISOString(),
+        ...calculatePricing(farmPriceNum, payload.cropName),
+      };
+      setFarmerProducts(prev => [newListing, ...prev]);
+      addToast(`✅ Produce Listing Posted Locally!`, 'success');
+    }
+
     setShowAddModal(false);
     // Reset form
     setFormData({
@@ -79,6 +132,21 @@ export default function FarmerPortal() {
       organic: false,
     });
   };
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/api/products/${id}`, { method: 'DELETE' });
+      setFarmerProducts(prev => prev.filter(p => p.id !== id));
+      addToast('Listing removed successfully', 'info');
+    } catch (err) {
+      setFarmerProducts(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
+  // Live pricing suggestion calculation for form
+  const liveFormPricing = formData.farmPrice && formData.cropName
+    ? calculatePricing(formData.farmPrice, formData.cropName)
+    : null;
 
   return (
     <div className="farmer-portal container">
@@ -138,49 +206,55 @@ export default function FarmerPortal() {
         <button className={`tab ${activeTab === 'mandi' ? 'active' : ''}`} onClick={() => setActiveTab('mandi')}>
           📊 Mandi vs Platform Price Intelligence
         </button>
-        <button className={`tab ${activeTab === 'fpo' ? 'active' : ''}`} onClick={() => setActiveTab('fpo')}>
-          🤝 FPO Group Inventory Aggregation
-        </button>
       </div>
 
       {/* Tab 1: Listings */}
       {activeTab === 'listings' && (
         <div className="portal-content">
-          <div className="table-container card">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Crop</th>
-                  <th>Category</th>
-                  <th>Quantity</th>
-                  <th>Farmer Price</th>
-                  <th>Mandi Rate</th>
-                  <th>Retail Rate</th>
-                  <th>Grade</th>
-                  <th>Harvest Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {farmerProducts.map(p => (
-                  <tr key={p.id}>
-                    <td>
-                      <strong>{p.cropName}</strong>
-                      <div className="text-xs text-secondary">{p.variety}</div>
-                    </td>
-                    <td><span className="badge badge-gray">{p.category}</span></td>
-                    <td><strong>{p.quantity} {p.unit}</strong></td>
-                    <td><strong className="text-success">₹{p.farmPrice}/kg</strong></td>
-                    <td>₹{p.mandiPrice}/kg</td>
-                    <td className="text-secondary" style={{ textDecoration: 'line-through' }}>₹{p.retailPrice}/kg</td>
-                    <td><span className="badge badge-amber">Grade {p.grade}</span></td>
-                    <td>{p.harvestDate}</td>
-                    <td><span className="badge badge-green">Live Listing</span></td>
+          {loading ? (
+            <div className="card card-body text-center p-5">⏳ Loading live farmer inventory...</div>
+          ) : (
+            <div className="table-container card">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Crop</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Farmer Payout</th>
+                    <th>Platform Fee (8%)</th>
+                    <th>Consumer Price</th>
+                    <th>Mandi Rate</th>
+                    <th>Grade</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {farmerProducts.map(p => {
+                    const pricing = calculatePricing(p.farmPrice, p.cropName);
+                    return (
+                      <tr key={p.id}>
+                        <td>
+                          <strong>{p.cropName}</strong>
+                          <div className="text-xs text-secondary">{p.variety || 'Standard'}</div>
+                        </td>
+                        <td><span className="badge badge-gray">{p.category}</span></td>
+                        <td><strong>{p.quantity} {p.unit}</strong></td>
+                        <td><strong className="text-success">₹{p.farmPrice}/kg</strong></td>
+                        <td className="text-secondary">+₹{pricing.platformFee}/kg</td>
+                        <td><strong className="text-primary">₹{pricing.platformPrice}/kg</strong></td>
+                        <td>₹{pricing.mandiPrice}/kg</td>
+                        <td><span className="badge badge-amber">Grade {p.grade}</span></td>
+                        <td>
+                          <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(p.id)}>🗑️ Remove</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -188,41 +262,44 @@ export default function FarmerPortal() {
       {activeTab === 'mandi' && (
         <div className="portal-content">
           <div className="card card-body">
-            <h3>📈 Price Comparison Analysis</h3>
-            <p className="text-secondary">Comparing Mandi prices vs FarmDirect farmer payout per crop:</p>
+            <h3>📈 Mandi Price vs FarmDirect Direct Payout</h3>
+            <p className="text-secondary">Comparing traditional Mandi rates (after agent 40% commission cuts) vs direct FarmDirect payout:</p>
 
             <div className="mandi-comparison-grid grid grid-3 gap-4" style={{ marginTop: '20px' }}>
-              {Object.entries(mandiPriceHistory).map(([key, item]) => (
-                <div key={key} className="card card-body">
-                  <h4>{item.name}</h4>
-                  <div className="mandi-stat">
-                    <span>Mandi Benchmark:</span>
-                    <strong>₹{item.mandiPrices[item.mandiPrices.length - 1]}/kg</strong>
+              {Object.entries(MANDI_BENCHMARKS).map(([key, item]) => {
+                const pricing = calculatePricing(item.mandiPrice * 1.2, item.crop);
+                return (
+                  <div key={key} className="card card-body">
+                    <h4>{item.crop}</h4>
+                    <div className="mandi-stat flex justify-between text-sm mt-1">
+                      <span>Mandi Benchmark:</span>
+                      <strong>₹{item.mandiPrice}/kg</strong>
+                    </div>
+                    <div className="mandi-stat flex justify-between text-sm mt-1">
+                      <span>FarmDirect Payout:</span>
+                      <strong className="text-success">₹{pricing.farmPrice}/kg</strong>
+                    </div>
+                    <div className="mandi-stat flex justify-between text-sm mt-1">
+                      <span>Supermarket Retail:</span>
+                      <span className="text-secondary strike">₹{item.avgRetail}/kg</span>
+                    </div>
+                    <div className="badge badge-green mt-2">
+                      +₹{pricing.farmerBonusVsMandi}/kg (+{pricing.farmerBonusPercent}%) vs agent
+                    </div>
                   </div>
-                  <div className="mandi-stat">
-                    <span>FarmDirect Farmer Rate:</span>
-                    <strong className="text-success">₹{item.farmerPrices[item.farmerPrices.length - 1]}/kg</strong>
-                  </div>
-                  <div className="mandi-stat">
-                    <span>Consumer Retail:</span>
-                    <span className="text-secondary">₹{item.retailPrices[item.retailPrices.length - 1]}/kg</span>
-                  </div>
-                  <div className="badge badge-green" style={{ marginTop: '8px' }}>
-                    +35% extra profit for farmer
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Produce Modal (Module 1 Requirement) */}
+      {/* Add Produce Modal */}
       {showAddModal && (
         <div className="modal-backdrop" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px' }}>
             <div className="modal-header">
-              <h2>🌾 Add Produce Listing (Module 1)</h2>
+              <h2>🌾 Add Produce Listing (API Powered)</h2>
               <button className="cart-close-btn" onClick={() => setShowAddModal(false)}>✕</button>
             </div>
 
@@ -285,7 +362,7 @@ export default function FarmerPortal() {
 
               <div className="grid grid-2 gap-4">
                 <div className="form-group">
-                  <label className="form-label">Expected Price per kg (₹) *</label>
+                  <label className="form-label">Farmer Payout Expected (₹/kg) *</label>
                   <input
                     type="number"
                     name="farmPrice"
@@ -307,6 +384,18 @@ export default function FarmerPortal() {
                   </select>
                 </div>
               </div>
+
+              {/* Real-Time Price Engine Helper Box */}
+              {liveFormPricing && (
+                <div style={{ background: '#ecfdf5', padding: '12px', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
+                  <div className="text-xs font-bold text-success">💡 Transparent Price Preview:</div>
+                  <div className="grid grid-3 gap-2 mt-1 text-xs">
+                    <div>Your Payout: <strong>₹{liveFormPricing.farmPrice}/kg</strong></div>
+                    <div>Consumer Pays: <strong>₹{liveFormPricing.platformPrice}/kg</strong></div>
+                    <div>Consumer Saves: <strong className="text-success">{liveFormPricing.consumerSavingPercent}%</strong></div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-2 gap-4">
                 <div className="form-group">
@@ -340,7 +429,7 @@ export default function FarmerPortal() {
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" id="save-listing-btn">
-                  Publish Produce Listing
+                  🚀 Publish Live Listing to Marketplace
                 </button>
               </div>
             </form>
