@@ -25,7 +25,7 @@ const ROLE_PAGES = {
   ],
 };
 
-export default function Navbar() {
+export default function Navbar({ onOpenTracker }) {
   const { t, theme, toggleTheme, language, toggleLanguage, currentRole, setCurrentRole } = useApp();
   const { totalItems, toggleCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
@@ -65,8 +65,17 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Controls: Role Selector, Lang, Theme, Cart */}
+        {/* Controls: Role Selector, Tracker, Lang, Theme, Cart */}
         <div className="flex items-center gap-3">
+          <button
+            className="btn btn-secondary btn-sm flex items-center gap-1"
+            onClick={onOpenTracker}
+            title="Track active orders & supply chain"
+            id="track-orders-btn"
+          >
+            🚚 <span className="hidden-mobile">Track Orders</span>
+          </button>
+
           <div className="role-switcher" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="text-xs text-secondary font-medium hidden-mobile">Role:</span>
             <select

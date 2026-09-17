@@ -1,0 +1,64 @@
+.order-tracker-modal {
+  width: 90%;
+  max-width: 800px;
+}
+
+.step-tracker-container {
+  position: relative;
+  padding: 10px 0;
+}
+
+.step-line {
+  position: absolute;
+  top: 35px;
+  left: 10%;
+  right: 10%;
+  height: 4px;
+  background: #cbd5e1;
+  z-index: 1;
+}
+
+.steps-row {
+  position: relative;
+  z-index: 2;
+}
+
+.step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 25%;
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.step-node.completed .step-icon {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 8px;
+  color: var(--text-main);
+}
+
+.step-time {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { CartProvider } from './context/CartContext';
@@ -8,6 +8,7 @@ import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
 import CartDrawer from './components/Cart/CartDrawer';
 import GuidedTour from './components/Tour/GuidedTour';
+import OrderTracker from './components/OrderTracker/OrderTracker';
 
 import Landing from './pages/Landing/Landing';
 import FarmerPortal from './pages/FarmerPortal/FarmerPortal';
@@ -19,13 +20,15 @@ import Logistics from './pages/Logistics/Logistics';
 import './styles/index.css';
 
 export default function App() {
+  const [trackerOpen, setTrackerOpen] = useState(false);
+
   return (
     <AppProvider>
       <ToastProvider>
         <CartProvider>
           <Router>
             <div className="full-layout flex flex-col justify-between min-h-screen">
-              <Navbar />
+              <Navbar onOpenTracker={() => setTrackerOpen(true)} />
               <main style={{ flex: 1 }}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
@@ -78,7 +81,8 @@ export default function App() {
               </main>
 
               <GuidedTour />
-              <CartDrawer />
+              <CartDrawer onOpenTracker={() => setTrackerOpen(true)} />
+              <OrderTracker isOpen={trackerOpen} onClose={() => setTrackerOpen(false)} />
               <Footer />
             </div>
           </Router>

@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { farmers, mandiPriceHistory } from '../../data/mockData';
 import { calculatePricing, MANDI_BENCHMARKS } from '../../utils/pricingEngine';
 import PriceBreakdown from '../../components/PriceBreakdown/PriceBreakdown';
+import CropAdvisory from '../../components/CropAdvisory/CropAdvisory';
 import { useToast } from '../../components/UI/Toast';
 import './FarmerPortal.css';
 
@@ -143,6 +144,37 @@ export default function FarmerPortal() {
     }
   };
 
+  const [listening, setListening] = useState(false);
+
+  const handleVoiceInput = () => {
+    setListening(true);
+    addToast('🎙️ Voice Input Active! Speak in Hindi or English (e.g. "500 kilo Tamatar 28 rupaye")', 'info', 4000);
+    setTimeout(() => {
+      setListening(false);
+      setFormData(prev => ({
+        ...prev,
+        cropName: 'Tomato',
+        variety: 'Nashik Cherry Red',
+        quantity: 500,
+        farmPrice: 28,
+        category: 'vegetables',
+      }));
+      addToast('✅ Voice Dictation Processed: "500kg Tomato @ ₹28/kg" Auto-Filled!', 'success');
+    }, 2200);
+  };
+
+  const handleSelectCropAdvisory = (rec) => {
+    setFormData(prev => ({
+      ...prev,
+      cropName: rec.cropName.split(' ')[0],
+      variety: rec.variety,
+      farmPrice: rec.recommendedPrice,
+      quantity: 500,
+    }));
+    setShowAddModal(true);
+    addToast(`🤖 AI Advisory Applied: ${rec.cropName} @ ₹${rec.recommendedPrice}/kg!`, 'success');
+  };
+
   // Live pricing suggestion calculation for form
   const liveFormPricing = formData.farmPrice && formData.cropName
     ? calculatePricing(formData.farmPrice, formData.cropName)
@@ -211,6 +243,7 @@ export default function FarmerPortal() {
       {/* Tab 1: Listings */}
       {activeTab === 'listings' && (
         <div className="portal-content">
+          <CropAdvisory onSelectCrop={handleSelectCropAdvisory} />
           {loading ? (
             <div className="card card-body text-center p-5">⏳ Loading live farmer inventory...</div>
           ) : (
@@ -304,6 +337,22 @@ export default function FarmerPortal() {
             </div>
 
             <form onSubmit={handleSubmit} className="modal-body flex flex-col gap-4">
+              {/* Voice Dictation Banner for Rural Accessibility */}
+              <div style={{ background: '#f0f9ff', border: '1px solid #7dd3fc', padding: '12px', borderRadius: '8px' }} className="flex justify-between items-center">
+                <div>
+                  <strong className="text-xs text-primary">🎤 Rural Digital Literacy Helper (बोलकर दर्ज करें):</strong>
+                  <div className="text-xs text-secondary">Click button & speak in Hindi or English to auto-fill crop, quantity & price.</div>
+                </div>
+                <button
+                  type="button"
+                  className={`btn ${listening ? 'btn-amber pulse-glow' : 'btn-primary'} btn-sm`}
+                  onClick={handleVoiceInput}
+                  disabled={listening}
+                >
+                  {listening ? '🎙️ Listening in Hindi...' : '🎤 Speak (बोलें)'}
+                </button>
+              </div>
+
               <div className="grid grid-2 gap-4">
                 <div className="form-group">
                   <label className="form-label">Crop / Product Name *</label>
