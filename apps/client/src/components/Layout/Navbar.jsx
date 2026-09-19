@@ -73,7 +73,7 @@ export default function Navbar({ onOpenTracker }) {
             title="Track active orders & supply chain"
             id="track-orders-btn"
           >
-            🚚 <span className="hidden-mobile">Track Orders</span>
+          <span className="hidden-mobile">Track Orders</span>
           </button>
 
           <div className="role-switcher" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -103,9 +103,9 @@ export default function Navbar({ onOpenTracker }) {
             {language === 'en' ? 'हि' : 'EN'}
           </button>
 
-          <button className="nav-btn theme-toggle" onClick={toggleTheme} id="theme-toggle" title="Toggle dark mode">
+          {/* <button className="nav-btn theme-toggle" onClick={toggleTheme} id="theme-toggle" title="Toggle dark mode">
             {theme === 'light' ? '🌙' : '☀️'}
-          </button>
+          </button> */}
 
           <button className="nav-btn cart-btn" onClick={toggleCart} id="cart-toggle">
             🛒

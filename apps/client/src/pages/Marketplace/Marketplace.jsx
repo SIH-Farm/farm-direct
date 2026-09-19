@@ -72,7 +72,7 @@ export default function Marketplace() {
       <div className="container" style={{ paddingTop: '24px', paddingBottom: '60px' }}>
         {/* Page Header */}
         <div className="marketplace-header text-center">
-          <span className="badge badge-green">🌾 Direct Farm Produce • Zero Middlemen</span>
+          {/* <span className="badge badge-green">🌾 Direct Farm Produce • Zero Middlemen</span> */}
           <h1 className="page-title">Farm-Direct Marketplace</h1>
           <p className="page-subtitle">
             Buy fresh, high-grade produce straight from verified Indian farmers & FPOs with transparent pricing.
@@ -84,7 +84,7 @@ export default function Marketplace() {
               <span className="search-icon">🔍</span>
               <input
                 type="text"
-                placeholder="Search crop (Tomato, Onion, Wheat) or farmer name..."
+                placeholder="Search by item or farmer name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 id="marketplace-search-input"
@@ -127,7 +127,7 @@ export default function Marketplace() {
                     <div className="product-card-top flex justify-between items-start">
                       <div>
                         {newlyListed && <span className="badge badge-green pulse-glow" style={{ marginRight: '6px' }}>🆕 JUST LISTED</span>}
-                        <span className="badge badge-amber">Grade {product.grade || 'A'}</span>
+                        <span className="badge badge-amber">Grade {product.grade || '(Not mentioned by Farmer)'}</span>
                         {product.organic && <span className="badge badge-green" style={{ marginLeft: '6px' }}>Organic</span>}
                       </div>
                       <span className="saving-badge">Save {pricing.consumerSavingPercent}%</span>
@@ -142,7 +142,7 @@ export default function Marketplace() {
 
                     <div className="product-meta text-xs text-secondary my-2">
                       <div>📍 Location: {product.location || 'Nashik, MH'}</div>
-                      <div>🧑‍🌾 Listed by: <strong>{product.farmerName || 'Rajesh Patil'}</strong></div>
+                      <div>Listed by: <strong>{product.farmerName || 'Rajesh Patil'}</strong></div>
                       <div>⭐ Rating: {product.rating || '4.8'} / 5.0</div>
                     </div>
 

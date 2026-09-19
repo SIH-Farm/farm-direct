@@ -29,7 +29,7 @@ export default function App() {
           <Router>
             <div className="full-layout flex flex-col justify-between min-h-screen">
               <Navbar onOpenTracker={() => setTrackerOpen(true)} />
-              <main style={{ flex: 1 }}>
+              <main style={{ flex: 1, paddingTop: '88px' }}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
 

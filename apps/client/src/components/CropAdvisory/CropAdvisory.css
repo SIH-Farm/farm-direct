@@ -7,6 +7,7 @@
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   transition: transform 0.2s, box-shadow 0.2s;
+  padding: 20px;
 }
 
 .advisory-card:hover {
