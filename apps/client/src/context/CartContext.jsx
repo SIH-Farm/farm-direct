@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import { calculatePricing } from '../utils/pricingEngine';
 
 const CartContext = createContext();
 
@@ -12,11 +13,13 @@ function cartReducer(state, action) {
     case 'ADD_ITEM': {
       const existing = state.items.find(item => item.productId === action.payload.productId);
       if (existing) {
+        // Never allow the basket to exceed the stock the farmer actually listed.
+        const max = existing.maxQuantity > 0 ? existing.maxQuantity : Infinity;
         return {
           ...state,
           items: state.items.map(item =>
             item.productId === action.payload.productId
-              ? { ...item, quantity: item.quantity + action.payload.quantity }
+              ? { ...item, quantity: Math.min(item.quantity + action.payload.quantity, max) }
               : item
           ),
         };
@@ -28,11 +31,11 @@ function cartReducer(state, action) {
     case 'UPDATE_QUANTITY':
       return {
         ...state,
-        items: state.items.map(item =>
-          item.productId === action.payload.productId
-            ? { ...item, quantity: action.payload.quantity }
-            : item
-        ),
+        items: state.items.map(item => {
+          if (item.productId !== action.payload.productId) return item;
+          const max = item.maxQuantity > 0 ? item.maxQuantity : Infinity;
+          return { ...item, quantity: Math.max(1, Math.min(action.payload.quantity, max)) };
+        }),
       };
     case 'CLEAR_CART':
       return { ...state, items: [] };
@@ -48,14 +51,21 @@ function cartReducer(state, action) {
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
+  // Single source of truth for money: prices ALWAYS come from the pricing engine,
+  // never from a price field that happens to sit on the product object.
   const addToCart = useCallback((product, quantity = 1) => {
+    const { platformPrice } = calculatePricing(product.farmPrice, product.cropName);
+    const availableStock = Number(product.quantity) || 0;
+    const requested = Math.max(1, Number(quantity) || 1);
+
     dispatch({
       type: 'ADD_ITEM',
       payload: {
         productId: product.id,
         product,
-        quantity,
-        pricePerUnit: product.platformPrice,
+        quantity: availableStock > 0 ? Math.min(requested, availableStock) : requested,
+        maxQuantity: availableStock,
+        pricePerUnit: platformPrice,
       },
     });
   }, []);

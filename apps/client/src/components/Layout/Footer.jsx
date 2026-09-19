@@ -1,38 +1,41 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 import './Footer.css';
 
 export default function Footer() {
+  const { t } = useApp();
+
   return (
     <footer className="footer">
       <div className="container footer-inner grid grid-4 gap-8">
         <div>
           <div className="footer-logo">🌾 Farm<span>Direct</span></div>
           <p className="footer-desc">
-            Direct digital marketplace connecting Indian farmers & FPOs with buyers. Eliminating intermediaries, maximizing farmer payouts, and providing AI-driven logistics.
+            {t('ui.footer.desc')}
           </p>
         </div>
 
         <div>
-          <h4>Platform Modules</h4>
+          <h4>{t('ui.footer.modules')}</h4>
           <ul className="footer-links flex flex-col gap-2">
-            <li><Link to="/marketplace">Consumer Marketplace</Link></li>
-            <li><Link to="/farmer">Farmer / FPO Portal</Link></li>
-            <li><Link to="/bulk-buyer">Bulk Buyer & RFQs</Link></li>
-            <li><Link to="/analytics">AI Demand Forecasting</Link></li>
-            <li><Link to="/logistics">Cold-Chain Route Map</Link></li>
+            <li><Link to="/marketplace">{t('nav.marketplace')}</Link></li>
+            <li><Link to="/farmer">{t('nav.farmerPortal')}</Link></li>
+            <li><Link to="/bulk-buyer">{t('nav.bulkBuyer')}</Link></li>
+            <li><Link to="/analytics">{t('nav.analytics')}</Link></li>
+            <li><Link to="/logistics">{t('nav.logistics')}</Link></li>
           </ul>
         </div>
 
         <div>
-          <h4>Supported States</h4>
+          <h4>{t('ui.footer.states')}</h4>
           <p className="text-xs text-secondary leading-relaxed">
             Maharashtra, Punjab, Karnataka, Uttar Pradesh, Kerala, Rajasthan, Andhra Pradesh, Tamil Nadu, Gujarat, Haryana, West Bengal, Madhya Pradesh.
           </p>
         </div>
 
         <div>
-          <h4>Project Information</h4>
+          <h4>{t('ui.footer.info')}</h4>
           <p className="text-xs text-secondary">
             Built for Academic / Panel Presentation & Demo.<br />
             Integrates ONDC & e-NAM standards for direct APMC bypass.

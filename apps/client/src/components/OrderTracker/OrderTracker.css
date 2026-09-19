@@ -14,7 +14,7 @@
   left: 10%;
   right: 10%;
   height: 4px;
-  background: #cbd5e1;
+  background: var(--border-color-strong, #cbd5e1);
   z-index: 1;
 }
 
@@ -35,8 +35,8 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid #cbd5e1;
+  background: var(--bg-card, #ffffff);
+  border: 3px solid var(--border-color-strong, #cbd5e1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,19 +46,19 @@
 }
 
 .step-node.completed .step-icon {
-  background: #dcfce7;
-  border-color: #16a34a;
-  color: #15803d;
+  background: var(--surface-success-strong, #dcfce7);
+  border-color: var(--color-primary-600, #16a34a);
+  color: var(--text-on-tint-success, #15803d);
 }
 
 .step-label {
   font-size: 0.8rem;
   font-weight: 700;
   margin-top: 8px;
-  color: var(--text-main);
+  color: var(--text-primary, #0f172a);
 }
 
 .step-time {
   font-size: 0.7rem;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
 }

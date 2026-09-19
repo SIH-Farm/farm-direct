@@ -13,9 +13,9 @@
 }
 
 .upi-option-btn.active {
-  border-color: #16a34a;
-  background: #f0fdf4;
-  color: #15803d;
+  border-color: var(--color-primary-600, #16a34a);
+  background: var(--surface-success, #f0fdf4);
+  color: var(--text-on-tint-success, #15803d);
 }
 
 .receipt-success-icon {

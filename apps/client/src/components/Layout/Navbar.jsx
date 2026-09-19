@@ -38,11 +38,10 @@ export default function Navbar({ onOpenTracker }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isHome = location.pathname === '/';
   const visiblePages = ROLE_PAGES[currentRole] || ROLE_PAGES.admin;
 
   return (
-    <nav className={`navbar ${scrolled ? 'scrolled' : ''} ${isHome && !scrolled ? 'transparent' : ''}`} id="main-navbar">
+    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} id="main-navbar">
       <div className="navbar-inner container flex justify-between items-center">
         <Link to="/" className="navbar-logo" id="logo-link">
           <span className="logo-icon">🌾</span>
@@ -77,7 +76,7 @@ export default function Navbar({ onOpenTracker }) {
           </button>
 
           <div className="role-switcher" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span className="text-xs text-secondary font-medium hidden-mobile">Role:</span>
+            <span className="text-xs text-secondary font-medium hidden-mobile">{t('common.role')}:</span>
             <select
               className="role-select"
               value={currentRole}

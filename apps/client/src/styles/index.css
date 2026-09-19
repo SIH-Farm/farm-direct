@@ -12,6 +12,11 @@
 }
 
 :root {
+  /* Native controls (select dropdown, scrollbars, inputs) follow the theme.
+     Without this, the OS paints <option> popups with light backgrounds while
+     the text inherits the dark-mode color -> text disappears on hover. */
+  color-scheme: light;
+
   /* ---- Color Palette ---- */
   /* Primary — Fresh Green (farm/nature) */
   --color-primary-50: #f0fdf4;
@@ -80,6 +85,35 @@
   --text-inverse: #ffffff;
   --border-color: #e2e8f0;
   --border-color-strong: #cbd5e1;
+
+  /* ---- Input / inset surfaces ---- */
+  --bg-input: #f8fafc;
+
+  /* ---- Tinted surfaces (theme-aware) ----
+     Coloured washes (payout boxes, alerts, supply-chain nodes). These MUST flip in
+     dark mode, otherwise light tinted text ends up on a light tinted background. */
+  --surface-success: #f0fdf4;
+  --surface-success-strong: #dcfce7;
+  --surface-success-border: #a7f3d0;
+  --surface-danger: #fef2f2;
+  --surface-danger-strong: #fee2e2;
+  --surface-danger-border: #fca5a5;
+  --surface-info: #f0f9ff;
+  --surface-info-border: #7dd3fc;
+  --surface-warn: #fffbeb;
+  --surface-warn-border: #fde68a;
+  --surface-neutral: #f8fafc;
+  --surface-neutral-border: #e2e8f0;
+
+  /* Text that sits ON a tinted surface */
+  --text-on-tint-success: #166534;
+  --text-on-tint-danger: #991b1b;
+  --text-on-tint-info: #0369a1;
+  --text-on-tint-warn: #92400e;
+  --text-on-tint-neutral: #334155;
+
+  /* Accent text that must stay readable in both themes */
+  --text-accent-green: #15803d;
 
   /* ---- Gradients ---- */
   --gradient-hero: linear-gradient(135deg, #14532d 0%, #166534 30%, #15803d 60%, #22c55e 100%);
@@ -155,6 +189,8 @@
 
 /* ---- Dark Mode ---- */
 [data-theme="dark"] {
+  color-scheme: dark;
+
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
@@ -166,6 +202,32 @@
   --text-inverse: #0f172a;
   --border-color: #334155;
   --border-color-strong: #475569;
+
+  /* Inset surfaces */
+  --bg-input: #0f172a;
+
+  /* Tinted surfaces — dark equivalents so tinted panels stay readable */
+  --surface-success: #0d2a1c;
+  --surface-success-strong: #14532d;
+  --surface-success-border: #166534;
+  --surface-danger: #2b1315;
+  --surface-danger-strong: #450a0a;
+  --surface-danger-border: #7f1d1d;
+  --surface-info: #0b2536;
+  --surface-info-border: #0c4a6e;
+  --surface-warn: #2a1f0b;
+  --surface-warn-border: #78350f;
+  --surface-neutral: #1e293b;
+  --surface-neutral-border: #334155;
+
+  --text-on-tint-success: #86efac;
+  --text-on-tint-danger: #fca5a5;
+  --text-on-tint-info: #7dd3fc;
+  --text-on-tint-warn: #fcd34d;
+  --text-on-tint-neutral: #cbd5e1;
+
+  --text-accent-green: #4ade80;
+
   --gradient-card: linear-gradient(145deg, #1e293b 0%, #0f2a1e 100%);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
@@ -313,18 +375,9 @@ input, select, textarea {
   overflow: hidden;
 }
 
-.btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(255,255,255,0.2), transparent);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.btn:hover::after {
-  opacity: 1;
-}
+/* NOTE: the old ::after shine overlay was removed — it absolutely covered the
+   button on hover and, painting above bare text nodes, hid the label
+   (e.g. the hero "Explore Marketplace" CTA went solid green on hover). */
 
 .btn-primary {
   background: var(--color-primary-600);
@@ -350,7 +403,10 @@ input, select, textarea {
 
 .btn-secondary:hover {
   border-color: var(--color-primary-400);
-  background: var(--color-primary-50);
+  /* Theme-aware tint: --color-primary-50 is near-white and made light text
+     invisible on hover in dark mode */
+  background: var(--surface-success);
+  color: var(--text-on-tint-success);
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
@@ -482,13 +538,13 @@ input, select, textarea {
 }
 
 .stat-change.positive {
-  color: var(--color-primary-700);
-  background: var(--color-primary-50);
+  color: var(--text-on-tint-success);
+  background: var(--surface-success);
 }
 
 .stat-change.negative {
-  color: var(--color-error);
-  background: #fef2f2;
+  color: var(--text-on-tint-danger);
+  background: var(--surface-danger);
 }
 
 /* ---- Badges ---- */
@@ -504,28 +560,28 @@ input, select, textarea {
 }
 
 .badge-green {
-  background: var(--color-primary-100);
-  color: var(--color-primary-800);
+  background: var(--surface-success-strong);
+  color: var(--text-on-tint-success);
 }
 
 .badge-amber {
-  background: var(--color-secondary-100);
-  color: var(--color-secondary-800);
+  background: var(--surface-warn);
+  color: var(--text-on-tint-warn);
 }
 
 .badge-blue {
-  background: var(--color-accent-100);
-  color: var(--color-accent-800);
+  background: var(--surface-info);
+  color: var(--text-on-tint-info);
 }
 
 .badge-red {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--surface-danger);
+  color: var(--text-on-tint-danger);
 }
 
 .badge-gray {
-  background: var(--color-gray-100);
-  color: var(--color-gray-700);
+  background: var(--surface-neutral);
+  color: var(--text-on-tint-neutral);
 }
 
 /* Savings Badge */
@@ -1018,25 +1074,25 @@ input, select, textarea {
 }
 
 .price-node.farmer {
-  background: var(--color-primary-100);
-  border: 1.5px solid var(--color-primary-300);
+  background: var(--surface-success);
+  border: 1.5px solid var(--surface-success-border);
 }
 
 .price-node.middleman {
-  background: #fee2e2;
-  border: 1.5px solid #fca5a5;
+  background: var(--surface-danger);
+  border: 1.5px solid var(--surface-danger-border);
   opacity: 0.6;
   text-decoration: line-through;
 }
 
 .price-node.platform {
-  background: var(--color-accent-100);
-  border: 1.5px solid var(--color-accent-300);
+  background: var(--surface-info);
+  border: 1.5px solid var(--surface-info-border);
 }
 
 .price-node.consumer {
-  background: var(--color-secondary-100);
-  border: 1.5px solid var(--color-secondary-300);
+  background: var(--surface-warn);
+  border: 1.5px solid var(--surface-warn-border);
 }
 
 .price-arrow {
