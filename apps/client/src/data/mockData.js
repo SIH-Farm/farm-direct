@@ -142,7 +142,7 @@ export const categories = [
   { id: 'pulses', name: 'Pulses & Lentils', nameHi: 'दालें', icon: '🫘', color: '#b45309' },
   { id: 'spices', name: 'Spices', nameHi: 'मसाले', icon: '🌶️', color: '#ef4444' },
   { id: 'dairy', name: 'Dairy', nameHi: 'डेयरी', icon: '🥛', color: '#0ea5e9' },
-  { id: 'oilseeds', name: 'Oilseeds', nameHi: 'तिलहन', icon: '🥜', color: '#a16207' },
+  { id: 'oilseeds', name: 'Oil seeds', nameHi: 'तिलहन', icon: '🥜', color: '#a16207' },
 ];
 
 // ----- Indian States with Coordinates -----

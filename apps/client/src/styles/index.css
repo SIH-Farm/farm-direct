@@ -177,6 +177,7 @@
    ============================================ */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 96px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -267,7 +268,10 @@ input, select, textarea {
 /* ---- Grid ---- */
 .grid { display: grid; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-3 { 
+  grid-template-columns: repeat(3, 1fr);
+  margin: 20px;
+ }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 
 @media (max-width: 1024px) {
@@ -620,6 +624,7 @@ input, select, textarea {
   overflow-x: auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
+  margin:40px;
 }
 
 .table {
@@ -693,6 +698,7 @@ input, select, textarea {
 
 .modal-footer {
   padding: var(--space-4) var(--space-6);
+  
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
@@ -976,6 +982,10 @@ input, select, textarea {
 /* ---- No sidebar layout (landing page) ---- */
 .full-layout {
   min-height: 100vh;
+}
+
+main {
+  padding-top: 88px;
 }
 
 /* ---- Responsive ---- */
