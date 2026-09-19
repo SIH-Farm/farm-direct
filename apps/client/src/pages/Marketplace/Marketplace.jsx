@@ -74,9 +74,9 @@ export default function Marketplace() {
         <div className="marketplace-header text-center">
           {/* <span className="badge badge-green">🌾 Direct Farm Produce • Zero Middlemen</span> */}
           <h1 className="page-title">Farm-Direct Marketplace</h1>
-          <p className="page-subtitle">
+          {/* <p className="page-subtitle">
             Buy fresh, high-grade produce straight from verified Indian farmers & FPOs with transparent pricing.
-          </p>
+          </p> */}
 
           {/* Search & Category Filter Bar */}
           <div className="search-filter-bar flex justify-between gap-4 items-center">
