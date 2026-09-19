@@ -67,7 +67,7 @@ export default function Marketplace() {
   return (
     <div className="marketplace-page">
       {/* Live Market Activity Ticker */}
-      <LiveTicker />
+      {/* <LiveTicker /> */}
 
       <div className="container" style={{ paddingTop: '24px', paddingBottom: '60px' }}>
         {/* Page Header */}
