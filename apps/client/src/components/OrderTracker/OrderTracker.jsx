@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { apiGet } from '../../utils/api';
 import './OrderTracker.css';
 
 const DEMO_ORDERS = [
@@ -36,10 +37,72 @@ const DEMO_ORDERS = [
   },
 ];
 
-export default function OrderTracker({ isOpen, onClose }) {
-  const [selectedOrder, setSelectedOrder] = useState(DEMO_ORDERS[0]);
+/**
+ * Normalises a server order (or a bundled demo order) into the shape this screen renders,
+ * so live orders and fallback demo orders use one single code path.
+ */
+export function toOrderViewModel(order) {
+  if (!order) return null;
+  const items = Array.isArray(order.items) ? order.items : [];
+  const first = items[0];
+
+  return {
+    id: order.id,
+    cropName: items.length ? items.map(i => i.cropName).join(', ') : (order.cropName || 'Farm produce'),
+    farmerName: order.farmerName || first?.farmerName || 'FarmDirect Farmer',
+    farmerLocation: order.farmerLocation || first?.farmerLocation || order.location || 'India',
+    quantity: items.length
+      ? items.map(i => `${i.quantity}${i.unit || 'kg'}`).join(', ')
+      : (order.quantity || ''),
+    totalPrice: order.totalAmount ?? order.totalPrice ?? 0,
+    farmerPayout: order.farmerPayout ?? 0,
+    platformFee: order.platformFee ?? 0,
+    orderDate: order.orderDate || '',
+    statusStep: Number.isFinite(order.statusStep) ? order.statusStep : 1,
+    driverName: order.driverName || null,
+    vehicleNo: order.vehicleNo || null,
+    coldTemp: order.coldTemp || null,
+    eta: order.eta || (order.status === 'delivered' ? 'Delivered' : 'Dispatch being assigned'),
+  };
+}
+
+export default function OrderTracker({ isOpen, onClose, order }) {
+  const [orders, setOrders] = useState(() => DEMO_ORDERS.map(toOrderViewModel));
+  const [selectedId, setSelectedId] = useState(DEMO_ORDERS[0].id);
+
+  // Load real orders whenever the tracker opens; fall back to the bundled demo
+  // orders so the screen is never empty during a demo.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiGet('/orders');
+        if (cancelled || !Array.isArray(data) || data.length === 0) return;
+        const live = data.map(toOrderViewModel).filter(Boolean);
+        setOrders(live);
+        setSelectedId(prev => (live.some(o => o.id === prev) ? prev : live[0].id));
+      } catch {
+        // API offline — keep the bundled demo orders.
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [isOpen]);
+
+  // The order the buyer just paid for always takes priority.
+  useEffect(() => {
+    const placed = toOrderViewModel(order);
+    if (!placed) return;
+    setOrders(prev => [placed, ...prev.filter(o => o.id !== placed.id)]);
+    setSelectedId(placed.id);
+  }, [order]);
 
   if (!isOpen) return null;
+
+  const selectedOrder = orders.find(o => o.id === selectedId) || orders[0];
+  if (!selectedOrder) return null;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -56,11 +119,11 @@ export default function OrderTracker({ isOpen, onClose }) {
           {/* Order Selection Sidebar */}
           <div className="order-list-sidebar flex flex-col gap-2" style={{ width: '220px', borderRight: '1px solid var(--border-color)', paddingRight: '12px' }}>
             <span className="text-xs text-secondary font-bold mb-1">SELECT ORDER</span>
-            {DEMO_ORDERS.map(ord => (
+            {orders.map(ord => (
               <div
                 key={ord.id}
                 className={`order-item-card p-2 rounded cursor-pointer ${selectedOrder.id === ord.id ? 'active-order' : ''}`}
-                onClick={() => setSelectedOrder(ord)}
+                onClick={() => setSelectedId(ord.id)}
                 style={{
                   background: selectedOrder.id === ord.id ? 'var(--bg-input)' : 'transparent',
                   border: selectedOrder.id === ord.id ? '1px solid #16a34a' : '1px solid var(--border-color)',
@@ -123,7 +186,7 @@ export default function OrderTracker({ isOpen, onClose }) {
             {/* Live Telemetry & Payout Proof Card */}
             <div className="telemetry-card grid grid-2 gap-3 p-3 mt-4" style={{ background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
               <div>
-                <div className="text-xs text-secondary font-bold">🧑‍🌾 PRODUCER PAYOUT DETAILS</div>
+                <div className="text-xs text-secondary font-bold"> PRODUCER PAYOUT DETAILS</div>
                 <div className="text-sm font-semibold mt-1">{selectedOrder.farmerName}</div>
                 <div className="text-xs text-secondary">📍 {selectedOrder.farmerLocation}</div>
                 <div className="text-xs text-success font-bold mt-1">
@@ -132,11 +195,18 @@ export default function OrderTracker({ isOpen, onClose }) {
               </div>
 
               <div>
-                <div className="text-xs text-secondary font-bold">❄️ SMART COLD-CHAIN TELEMETRY</div>
-                <div className="text-sm font-semibold mt-1">Driver: {selectedOrder.driverName}</div>
-                <div className="text-xs text-secondary">Vehicle: {selectedOrder.vehicleNo}</div>
+                <div className="text-xs text-secondary font-bold">SMART COLD-CHAIN TELEMETRY</div>
+                <div className="text-sm font-semibold mt-1">
+                  Driver: {selectedOrder.driverName || 'Dispatch being assigned'}
+                </div>
+                <div className="text-xs text-secondary">
+                  Vehicle: {selectedOrder.vehicleNo || '—'}
+                </div>
                 <div className="text-xs text-primary font-bold mt-1">
-                  🌡️ Temp: {selectedOrder.coldTemp}
+                  Temp: {selectedOrder.coldTemp || 'Ambient (monitoring starts at pickup)'}
+                </div>
+                <div className="text-xs text-secondary mt-1">
+                  Platform fee: ₹{selectedOrder.platformFee}
                 </div>
               </div>
             </div>

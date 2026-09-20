@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './LiveTicker.css';
+import { apiGet } from '../../utils/api';
 
 const DEFAULT_FEED = [
   "🔔 Rajesh Patil just listed 500kg Cherry Tomatoes (Nashik)",
@@ -18,13 +19,12 @@ export default function LiveTicker() {
     // Poll notifications from server
     const fetchNotifications = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/notifications');
-        const json = await res.json();
-        if (json.success && json.data.length > 0) {
-          const serverItems = json.data.map(n => `🔔 ${n.message}`);
+        const data = await apiGet('/notifications');
+        if (Array.isArray(data) && data.length > 0) {
+          const serverItems = data.map(n => `🔔 ${n.message}`);
           setFeed(prev => Array.from(new Set([...serverItems, ...prev])));
         }
-      } catch (err) {
+      } catch {
         // Fallback to default ticker if server offline
       }
     };

@@ -1,6 +1,6 @@
 .crop-advisory-container {
-  background: linear-gradient(135deg, rgba(220, 252, 231, 0.3) 0%, rgba(240, 253, 244, 0.5) 100%);
-  border: 1px solid #86efac;
+  background: var(--surface-success);
+  border: 1px solid var(--surface-success-border);
 }
 
 .advisory-card {

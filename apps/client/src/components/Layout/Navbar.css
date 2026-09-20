@@ -12,11 +12,12 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.navbar.transparent {
-  background: transparent;
-  backdrop-filter: none;
-  border-bottom: none;
-}
+/* NOTE: The old `.navbar.transparent` variant rendered all navbar text pure
+   white with no background, relying on the hero gradient behind it to always
+   paint. When that background failed (GPU quirks, extensions, restore-scroll),
+   the navbar contents were white-on-white — invisible on first load until the
+   guided tour navigated away. The navbar now ALWAYS keeps its frosted,
+   theme-aware background so its contents are readable in every state. */
 
 .navbar.scrolled {
   background: rgba(255, 255, 255, 0.95);
@@ -32,10 +33,6 @@
 
 [data-theme="dark"] .navbar.scrolled {
   background: rgba(15, 23, 42, 0.95);
-}
-
-[data-theme="dark"] .navbar.transparent {
-  background: transparent;
 }
 
 .navbar-inner {
@@ -64,10 +61,6 @@
   color: var(--text-primary);
 }
 
-.navbar.transparent .logo-text {
-  color: white;
-}
-
 .logo-highlight {
   color: var(--color-primary-500);
 }
@@ -94,23 +87,9 @@
 }
 
 .nav-link.active {
-  color: var(--color-primary-600);
-  background: var(--color-primary-50);
+  color: var(--text-accent-green);
+  background: var(--surface-success);
   font-weight: 600;
-}
-
-.navbar.transparent .nav-link {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.navbar.transparent .nav-link:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.navbar.transparent .nav-link.active {
-  color: white;
-  background: rgba(255, 255, 255, 0.15);
 }
 
 .navbar-actions {
@@ -140,12 +119,6 @@
   transform: translateY(-1px);
 }
 
-.navbar.transparent .nav-btn {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
 .role-select {
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-lg);
@@ -161,6 +134,14 @@
 
 .role-select:hover {
   border-color: var(--color-primary-400);
+}
+
+/* Native dropdown items: keep them pinned to theme surfaces so hover
+   highlighting can never render invisible text */
+.role-select option,
+select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .lang-toggle {

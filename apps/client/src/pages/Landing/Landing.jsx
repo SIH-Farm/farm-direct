@@ -5,7 +5,7 @@ import { platformStats, formatCurrency } from '../../data/mockData';
 import './Landing.css';
 
 export default function Landing() {
-  const { t, language } = useApp();
+  const { t } = useApp();
   const [calcQuantity, setCalcQuantity] = useState(100);
   const [calcCropPrice, setCalcCropPrice] = useState(25); // ₹25/kg farmer cost
 
@@ -28,25 +28,25 @@ export default function Landing() {
         <div className="hero-bg-overlay"></div>
         <div className="container hero-container">
           <div className="hero-badge">
-            <span className="badge-sparkle">✨</span> Direct Farm-to-Fork Ecosystem
+            <span className="badge-sparkle">✨</span> {t('ui.landing.badge')}
           </div>
           <h1 className="hero-title">
-            {language === 'hi' ? 'खेत से आपकी थाली तक,' : 'Direct from Farmers to Consumers,'}
-            <span className="hero-highlight"> {language === 'hi' ? 'बिना बिचौलिए' : 'Cutting Out Middlemen'}</span>
+            {t('ui.landing.title')}
+            <span className="hero-highlight"> {t('ui.landing.titleHighlight')}</span>
           </h1>
           <p className="hero-subtitle">
-            Eliminating supply chain inefficiencies with AI-driven demand forecasting, real-time Mandi price transparency, and route optimization. Better earnings for farmers, lower prices for buyers.
+            {t('ui.landing.subtitle')}
           </p>
 
           <div className="hero-actions">
             <Link to="/marketplace" className="btn btn-primary btn-lg" id="hero-cta-marketplace">
-              🛒 Explore Marketplace
+              {t('ui.landing.ctaMarketplace')}
             </Link>
             <Link to="/farmer" className="btn btn-secondary btn-lg" id="hero-cta-farmer">
-              🧑‍🌾 Farmer / FPO Login
+              {t('ui.landing.ctaFarmer')}
             </Link>
             <Link to="/analytics" className="btn btn-accent btn-lg" id="hero-cta-ai">
-              📊 AI Analytics & Routes
+              {t('ui.landing.ctaAnalytics')}
             </Link>
           </div>
 
@@ -54,19 +54,19 @@ export default function Landing() {
           <div className="hero-stats-grid">
             <div className="hero-stat-card">
               <span className="hero-stat-num">+35%</span>
-              <span className="hero-stat-label">Higher Farmer Earnings</span>
+              <span className="hero-stat-label">{t('ui.landing.statEarnings')}</span>
             </div>
             <div className="hero-stat-card">
               <span className="hero-stat-num">-42%</span>
-              <span className="hero-stat-label">Lower Consumer Prices</span>
+              <span className="hero-stat-label">{t('ui.landing.statPrices')}</span>
             </div>
             <div className="hero-stat-card">
               <span className="hero-stat-num">-28%</span>
-              <span className="hero-stat-label">Post-Harvest Waste Cut</span>
+              <span className="hero-stat-label">{t('ui.landing.statWaste')}</span>
             </div>
             <div className="hero-stat-card">
               <span className="hero-stat-num">₹23 Cr+</span>
-              <span className="hero-stat-label">Transacted Directly</span>
+              <span className="hero-stat-label">{t('ui.landing.statTransacted')}</span>
             </div>
           </div>
         </div>
@@ -77,9 +77,9 @@ export default function Landing() {
         <div className="container">
           <div className="text-center section-header">
             <span className="badge badge-green">INNOVATION HIGHLIGHT</span>
-            <h2 className="section-title">The Price Disparity Engine</h2>
+            <h2 className="section-title">{t('ui.landing.calcTitle')}</h2>
             <p className="section-subtitle">
-              See how traditional commission agents (arhatiyas) inflate prices vs. FarmDirect's transparent pricing
+              {t('ui.landing.calcSubtitle')}
             </p>
           </div>
 
@@ -158,8 +158,8 @@ export default function Landing() {
       <section className="section">
         <div className="container">
           <div className="text-center section-header">
-            <h2 className="section-title">Comprehensive Platform Features</h2>
-            <p className="section-subtitle">Everything needed to run a realistic direct agricultural supply chain</p>
+            <h2 className="section-title">{t('ui.landing.featuresTitle')}</h2>
+            <p className="section-subtitle">{t('ui.landing.featuresSubtitle')}</p>
           </div>
 
           <div className="grid grid-3 gap-6">

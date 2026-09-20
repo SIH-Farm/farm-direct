@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { farmers, mandiPriceHistory } from '../../data/mockData';
+import { farmers, mandiPriceHistory, getProductsByFarmer } from '../../data/mockData';
 import { calculatePricing, MANDI_BENCHMARKS } from '../../utils/pricingEngine';
-import PriceBreakdown from '../../components/PriceBreakdown/PriceBreakdown';
+import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import CropAdvisory from '../../components/CropAdvisory/CropAdvisory';
 import { useToast } from '../../components/UI/Toast';
 import './FarmerPortal.css';
@@ -36,18 +36,11 @@ export default function FarmerPortal() {
   const fetchFarmerProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:3001/api/products?farmerId=${activeFarmer.id}`);
-      const json = await res.json();
-      if (json.success && json.data.length > 0) {
-        setFarmerProducts(json.data);
-      } else {
-        // Fallback fetch all products if farmer specific is empty
-        const allRes = await fetch(`http://localhost:3001/api/products`);
-        const allJson = await allRes.json();
-        if (allJson.success) setFarmerProducts(allJson.data);
-      }
-    } catch (err) {
-      console.warn('API unavailable, using initial data:', err);
+      const data = await apiGet(`/products?farmerId=${encodeURIComponent(activeFarmer.id)}`);
+      setFarmerProducts(Array.isArray(data) ? data : []);
+    } catch {
+      // Server offline — fall back to this farmer's own bundled listings only.
+      setFarmerProducts(getProductsByFarmer(activeFarmer.id));
     } finally {
       setLoading(false);
     }
@@ -91,20 +84,11 @@ export default function FarmerPortal() {
     };
 
     try {
-      const res = await fetch('http://localhost:3001/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setFarmerProducts(prev => [json.data, ...prev]);
-        addToast(`✅ Produce Listing Posted Live! ${payload.quantity}${payload.unit} ${payload.cropName}`, 'success');
-      } else {
-        throw new Error(json.error);
-      }
+      const created = await apiPost('/products', payload);
+      setFarmerProducts(prev => [created, ...prev]);
+      addToast(`✅ Produce Listing Posted Live! ${payload.quantity}${payload.unit} ${payload.cropName}`, 'success');
     } catch (err) {
-      // Local fallback if server unreachable
+      const offline = !navigator.onLine;
       const newListing = {
         id: `P${Date.now()}`,
         ...payload,
@@ -114,7 +98,12 @@ export default function FarmerPortal() {
         ...calculatePricing(farmPriceNum, payload.cropName),
       };
       setFarmerProducts(prev => [newListing, ...prev]);
-      addToast(`✅ Produce Listing Posted Locally!`, 'success');
+      addToast(
+        offline
+          ? '⚠️ Offline — listing saved locally for this session only.'
+          : `⚠️ Could not publish: ${err.message}`,
+        'warning'
+      );
     }
 
     setShowAddModal(false);
@@ -135,12 +124,17 @@ export default function FarmerPortal() {
   };
 
   const handleDelete = async (id) => {
+    const listing = farmerProducts.find(p => p.id === id);
+    if (!window.confirm(`Remove the listing for ${listing?.cropName || 'this produce'}? This cannot be undone.`)) {
+      return;
+    }
     try {
-      await fetch(`http://localhost:3001/api/products/${id}`, { method: 'DELETE' });
+      await apiDelete(`/products/${id}`);
       setFarmerProducts(prev => prev.filter(p => p.id !== id));
       addToast('Listing removed successfully', 'info');
     } catch (err) {
-      setFarmerProducts(prev => prev.filter(p => p.id !== id));
+      // Only drop it from the UI if the server actually confirmed the delete.
+      addToast(`Could not remove listing: ${err.message}`, 'error');
     }
   };
 
@@ -246,6 +240,17 @@ export default function FarmerPortal() {
           <CropAdvisory onSelectCrop={handleSelectCropAdvisory} />
           {loading ? (
             <div className="card card-body text-center p-5">⏳ Loading live farmer inventory...</div>
+          ) : farmerProducts.length === 0 ? (
+            <div className="card card-body text-center p-5">
+              <div style={{ fontSize: '2.5rem' }}>🧺</div>
+              <h3 style={{ marginTop: '8px' }}>No live listings yet</h3>
+              <p className="text-secondary text-sm" style={{ marginTop: '4px' }}>
+                Post your first produce listing and it will appear on the marketplace within seconds.
+              </p>
+              <button className="btn btn-primary btn-sm" style={{ marginTop: '12px' }} onClick={() => setShowAddModal(true)}>
+                Post Produce Listing
+              </button>
+            </div>
           ) : (
             <div className="table-container card">
               <table className="table">

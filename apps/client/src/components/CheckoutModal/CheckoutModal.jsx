@@ -1,42 +1,81 @@
 import React, { useState } from 'react';
+import { apiPost } from '../../utils/api';
+import { useApp } from '../../context/AppContext';
 import './CheckoutModal.css';
 
-export default function CheckoutModal({ isOpen, onClose, cartItems, totalAmount, onOrderSuccess }) {
+const round2 = (n) => Math.round(n * 100) / 100;
+
+/** Deterministic payout handle, e.g. "Rajesh Patil" -> rajesh.patil@farmdirect */
+const payoutHandleFor = (name = '') => {
+  const slug = name.toLowerCase().replace(/[^a-z]+/g, '.').replace(/^\.+|\.+$/g, '');
+  return `${slug || 'farmer'}@farmdirect`;
+};
+
+export default function CheckoutModal({
+  isOpen,
+  onClose,
+  onTrack,
+  cartItems = [],
+  totalAmount = 0,
+  onOrderSuccess,
+}) {
   const [step, setStep] = useState('payment'); // 'payment' | 'receipt'
   const [selectedUpi, setSelectedUpi] = useState('gpay');
   const [loading, setLoading] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+  const [error, setError] = useState('');
+  const { t } = useApp();
 
   if (!isOpen) return null;
 
-  const platformFee = Math.round(totalAmount * 0.08);
-  const farmerPayout = totalAmount - platformFee;
+  // The split is derived from each farmer's own asking price — NOT from
+  // totalAmount × 0.08 (the total already includes the fee). This is exactly what
+  // the server does in buildOrder(), so cart, receipt and order always agree.
+  const farmerPayout = round2(
+    cartItems.reduce((sum, item) => sum + (Number(item.farmPrice) || 0) * item.quantity, 0)
+  );
+  const platformFee = round2(totalAmount - farmerPayout);
+  const totalUnits = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handlePay = () => {
+  const handlePay = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const data = {
+    setError('');
+    try {
+      // The order is really created server-side; stock is reserved and the payout
+      // figures below come back from the API rather than being faked in the browser.
+      const order = await apiPost('/orders', {
+        buyerName: 'FarmDirect Consumer',
+        items: cartItems.map(item => ({
+          productId: item.id || item.productId,
+          quantity: item.quantity,
+        })),
+      });
+
+      setReceiptData({
+        ...order,
         txId: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
         date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        farmerPayout,
-        platformFee,
-        totalAmount,
-        farmerName: cartItems[0]?.farmerName || 'Rajesh Patil',
-        farmerUpi: 'rajesh.patil@sbi',
-        itemsCount: cartItems.length,
-      };
-      setReceiptData(data);
+        unitsCount: order.items?.reduce((sum, i) => sum + i.quantity, 0) ?? totalUnits,
+      });
       setStep('receipt');
-      if (onOrderSuccess) onOrderSuccess(data);
-    }, 1500);
+      if (onOrderSuccess) onOrderSuccess(order);
+    } catch (err) {
+      setError(err.message || 'Payment could not be processed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTrackClick = () => {
+    if (onTrack) onTrack(receiptData);
+    else onClose();
   };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal checkout-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{step === 'payment' ? '💳 Direct Farmer Payout Checkout' : '✅ Payout Receipt & Order Confirmed!'}</h2>
+          <h2>{step === 'payment' ? t('ui.checkout.title') : t('ui.checkout.receiptTitle')}</h2>
           <button className="cart-close-btn" onClick={onClose}>✕</button>
         </div>
 
@@ -46,23 +85,23 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, totalAmount,
             <div className="p-3 rounded" style={{ background: '#ecfdf5', border: '1px solid #6ee7b7' }}>
               <div className="text-xs font-bold text-success">💡 TRANSPARENT ZERO-MIDDLEMEN PAYOUT</div>
               <div className="flex justify-between items-center mt-2 text-sm">
-                <span>👨‍🌾 Direct Payout to Farmer Bank Account:</span>
+                <span>{t('ui.checkout.payoutLabel')}:</span>
                 <strong className="text-success text-base">₹{farmerPayout}</strong>
               </div>
               <div className="flex justify-between items-center text-xs text-secondary mt-1">
-                <span>🚚 Platform Operational & Quality Fee (8%):</span>
+                <span>{t('ui.checkout.feeLabel')}:</span>
                 <span>+₹{platformFee}</span>
               </div>
               <div className="border-t my-2"></div>
               <div className="flex justify-between items-center text-base font-bold">
-                <span>Total Amount Payable:</span>
+                <span>{t('ui.checkout.totalLabel')} ({totalUnits} kg):</span>
                 <span className="text-primary text-xl">₹{totalAmount}</span>
               </div>
             </div>
 
             {/* Simulated UPI Method Selection */}
             <div>
-              <label className="form-label font-bold">Select Simulated Payment Method:</label>
+              <label className="form-label font-bold">{t('ui.checkout.selectUpi')}:</label>
               <div className="grid grid-3 gap-2 mt-2">
                 <button
                   type="button"
@@ -88,20 +127,32 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, totalAmount,
               </div>
             </div>
 
+            {error && (
+              <div
+                className="p-3 rounded text-sm"
+                style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#b91c1c' }}
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
+
             <button
               className="btn btn-primary btn-lg w-full mt-2"
               onClick={handlePay}
-              disabled={loading}
+              disabled={loading || cartItems.length === 0}
               id="pay-now-btn"
             >
-              {loading ? '⏳ Processing Instant Bank Transfer...' : `⚡ Pay ₹${totalAmount} & Transfer ₹${farmerPayout} to Farmer`}
+              {loading ? t('ui.checkout.processing') : `⚡ ${t('ui.checkout.payNow')} ₹${totalAmount} → ₹${farmerPayout}`}
             </button>
           </div>
         ) : (
           <div className="modal-body text-center flex flex-col items-center gap-3">
             <div className="receipt-success-icon">🎉</div>
-            <h3>Direct Farmer Bank Payout Initiated!</h3>
-            <p className="text-sm text-secondary">Txn Ref: <strong>{receiptData?.txId}</strong> at {receiptData?.date}</p>
+            <h3>Order Confirmed &amp; Farmer Payout Initiated!</h3>
+            <p className="text-sm text-secondary">
+              Order <strong>#{receiptData?.id}</strong> • Txn Ref: <strong>{receiptData?.txId}</strong> at {receiptData?.date}
+            </p>
 
             {/* Direct Payout Certificate Card */}
             <div className="receipt-card p-4 rounded w-full text-left my-2" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
@@ -110,24 +161,45 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, totalAmount,
                 <span className="badge badge-green">100% DIRECT</span>
               </div>
 
-              <div className="flex justify-between text-sm mt-3">
-                <span>Beneficiary Farmer:</span>
-                <strong>{receiptData?.farmerName}</strong>
-              </div>
+{(receiptData?.items || []).map(item => (
+                <div key={item.productId} className="mt-3 pt-2" style={{ borderTop: '1px solid #e2e8f0' }}>
+                  <div className="flex justify-between text-sm">
+                    <span>
+                      {item.cropName} <span className="text-secondary">({item.quantity}{item.unit})</span>
+                    </span>
+                    <strong>₹{item.lineTotal}</strong>
+                  </div>
+                  <div className="flex justify-between text-xs text-secondary mt-1">
+                    <span>Beneficiary Farmer:</span>
+                    <span>{item.farmerName}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-secondary">
+                    <span>Farmer UPI ID:</span>
+                    <code>{payoutHandleFor(item.farmerName)}</code>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold text-success">
+                    <span>Direct Payout (₹{item.farmPrice}/kg):</span>
+                    <span>₹{round2(item.farmPrice * item.quantity)}</span>
+                  </div>
+                </div>
+              ))}
 
-              <div className="flex justify-between text-sm text-secondary mt-1">
-                <span>Farmer UPI ID:</span>
-                <code>{receiptData?.farmerUpi}</code>
+              <div className="flex justify-between text-sm font-bold mt-3 pt-3" style={{ borderTop: '2px solid #cbd5e1' }}>
+                <span>Total Consumer Paid ({receiptData?.unitsCount ?? totalUnits} kg):</span>
+                <span>₹{receiptData?.totalAmount ?? totalAmount}</span>
               </div>
-
-              <div className="flex justify-between text-sm font-bold text-success mt-2 pt-2 border-t">
-                <span>Farmer Payout Amount:</span>
-                <span>₹{receiptData?.farmerPayout}</span>
+              <div className="flex justify-between text-sm font-bold text-success">
+                <span>Total Direct Payout to Farmers:</span>
+                <span>₹{receiptData?.farmerPayout ?? farmerPayout}</span>
+              </div>
+              <div className="flex justify-between text-xs text-secondary">
+                <span>Platform Fee:</span>
+                <span>+₹{receiptData?.platformFee ?? platformFee}</span>
               </div>
             </div>
 
-            <button className="btn btn-primary btn-lg w-full" onClick={onClose}>
-              🚚 Track Live Delivery Supply Chain
+            <button className="btn btn-primary btn-lg w-full" onClick={handleTrackClick}>
+              {t('ui.checkout.track')}
             </button>
           </div>
         )}

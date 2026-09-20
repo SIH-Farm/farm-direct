@@ -76,7 +76,7 @@ export default function Navbar({ onOpenTracker }) {
           </button>
 
           <div className="role-switcher" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span className="text-xs text-secondary font-medium hidden-mobile">Role:</span>
+            <span className="text-xs text-secondary font-medium hidden-mobile">{t('common.role')}:</span>
             <select
               className="role-select"
               value={currentRole}
