@@ -2,7 +2,7 @@
 
 India's first AI-powered digital marketplace connecting farmers and FPOs directly with consumers and bulk buyers.
 
-## 🚀 Problem
+## Problem
 Multiple intermediaries reduce farmer earnings by **40-60%** and inflate consumer prices. The current supply chain:
 
 ```
@@ -10,7 +10,7 @@ Farmer → Commission Agent → Wholesaler → Retailer → Consumer
 (₹20/kg)   (+₹5)            (+₹10)       (+₹15)     (₹50/kg)
 ```
 
-## ✅ Our Solution
+## Our Solution
 A direct digital marketplace that eliminates middlemen:
 
 ```
@@ -20,7 +20,7 @@ Farmer → FarmDirect Platform → Consumer
 
 **Result**: Farmers earn 35% more, consumers pay 42% less.
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -31,7 +31,7 @@ Farmer → FarmDirect Platform → Consumer
 | Maps | Leaflet.js |
 | Icons | Lucide React |
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 farm-direct/
@@ -42,7 +42,7 @@ farm-direct/
 └── README.md
 ```
 
-## 🧑‍🤝‍🧑 Team Assignments
+## Team Assignments
 
 | Member | Responsibility | Branch |
 |---|---|---|
@@ -53,7 +53,7 @@ farm-direct/
 | **Person 5** | Backend API + Mock Data | `feat/backend` |
 | **Person 6** | Landing Page + Hindi i18n + Polish | `feat/landing-i18n` |
 
-## 🛠️ Setup
+## Setup
 
 ```bash
 # Clone the repo
@@ -70,7 +70,7 @@ npm run dev:client
 npm run dev:server
 ```
 
-## 🌿 Git Workflow
+## Git Workflow
 
 1. **Never push directly to `main`** — always create a feature branch.
 2. Branch naming: `feat/<feature-name>`, `fix/<bug-name>`, `style/<ui-change>`
@@ -89,7 +89,7 @@ git push origin feat/your-feature
 # Then create a Pull Request on GitHub
 ```
 
-## 📊 Key Features
+## Key Features
 
 - 🛒 **Consumer Marketplace** — Browse farm-fresh produce, price transparency badges
 - 🧑‍🌾 **Farmer Portal** — List crops, manage orders, view Mandi price comparisons
@@ -97,8 +97,7 @@ git push origin feat/your-feature
 - 📈 **AI Analytics** — Demand forecasting, price predictions, seasonal insights
 - 🚛 **Logistics** — Route optimization, delivery tracking, cold-chain monitoring
 - 🌐 **Hindi/English** — Bilingual support
-- 🌙 **Dark Mode** — Full dark theme support
 
-## 📄 License
+## License
 
 MIT
