@@ -335,6 +335,7 @@ input, select, textarea {
   margin: 20px;
  }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
+.col-span-2 { grid-column: span 2; }
 
 @media (max-width: 1024px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -343,6 +344,7 @@ input, select, textarea {
 
 @media (max-width: 640px) {
   .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: auto; }
 }
 
 /* ---- Text ---- */

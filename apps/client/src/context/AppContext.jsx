@@ -3,6 +3,8 @@ import { i18n } from '../data/mockData';
 
 const THEME_STORAGE_KEY = 'farmdirect-theme';
 const LANGUAGE_STORAGE_KEY = 'farmdirect-language';
+const ROLE_STORAGE_KEY = 'farmdirect-role';
+const VALID_ROLES = ['farmer', 'consumer', 'bulk_buyer', 'admin'];
 
 /** Remembered theme, else whatever the operating system prefers. */
 function readInitialTheme() {
@@ -25,12 +27,27 @@ function readInitialLanguage() {
   return 'en';
 }
 
+/**
+ * Remembered role, so a refresh or a direct link to an admin route still lands on
+ * that route instead of silently falling back to a consumer session. Without this,
+ * /analytics and /logistics always bounce to "Access Restricted" on a hard load.
+ */
+function readInitialRole() {
+  try {
+    const stored = window.localStorage.getItem(ROLE_STORAGE_KEY);
+    if (VALID_ROLES.includes(stored)) return stored;
+  } catch {
+    // Storage unavailable (private mode) — fall through to the default.
+  }
+  return 'consumer';
+}
+
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const [theme, setTheme] = useState(readInitialTheme);
   const [language, setLanguage] = useState(readInitialLanguage);
-  const [currentRole, setCurrentRole] = useState('consumer'); // 'farmer', 'consumer', 'bulk_buyer', 'admin'
+  const [currentRole, setCurrentRole] = useState(readInitialRole);
   const [currentFarmerId, setCurrentFarmerId] = useState('F001');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -52,6 +69,15 @@ export function AppProvider({ children }) {
       // Storage unavailable — language still applies for this session.
     }
   }, [language]);
+
+  // Persist the active role so admin deep links survive a refresh mid-demo.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(ROLE_STORAGE_KEY, currentRole);
+    } catch {
+      // Storage unavailable — role still applies for this session.
+    }
+  }, [currentRole]);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
