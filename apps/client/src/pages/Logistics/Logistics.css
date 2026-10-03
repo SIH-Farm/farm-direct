@@ -4,10 +4,62 @@
 
 .logistics-header {
   margin-bottom: var(--space-6);
+  max-width: 780px;
 }
 
+/* ---------- Section scaffolding ---------- */
+
+.logistics-section {
+  margin-bottom: var(--space-8);
+}
+
+.logistics-section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.logistics-section-sub {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ---------- Fleet stat cards ---------- */
+
+.logistics-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logistics-stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #64748b);
+}
+
+.logistics-stat-unit {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ---------- Route cards (buttons, so they are keyboard reachable) ---------- */
+
 .route-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
   padding: var(--space-4);
+  font: inherit;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
   border: 1.5px solid var(--border-color);
   transition: all var(--transition-fast);
@@ -22,13 +74,129 @@
   background: var(--surface-success);
 }
 
+.route-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
 .route-path {
   font-size: var(--text-sm);
   font-weight: 600;
-  margin: var(--space-2) 0;
+  line-height: 1.4;
 }
+
+.route-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.route-vehicle {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.route-load {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.route-load-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.route-load-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-input, #eef2f7);
+  overflow: hidden;
+}
+
+.route-load-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.route-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.route-chip {
+  padding: 2px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-input, #f8fafc);
+  font-size: 0.7rem;
+  color: var(--text-secondary, #475569);
+}
+
+.route-eta {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ---------- Map card ---------- */
 
 .map-container-box {
   overflow: hidden;
   border-radius: var(--radius-xl);
+  align-self: start;
+}
+
+.map-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.map-legend-line {
+  width: 22px;
+  height: 0;
+  border-top: 3px dashed #22c55e;
+}
+
+.map-legend-eta {
+  margin-left: auto;
 }

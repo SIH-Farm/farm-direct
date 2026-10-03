@@ -4,12 +4,135 @@
 
 .analytics-header {
   margin-bottom: var(--space-8);
+  max-width: 780px;
 }
 
-.analytics-metrics {
-  margin-bottom: var(--space-6);
+/* ---------- Section scaffolding (gives the dashboard an explicit hierarchy) ---------- */
+
+.analytics-section {
+  margin-bottom: var(--space-8);
 }
+
+.analytics-section-head {
+  margin-bottom: var(--space-4);
+}
+
+.analytics-section-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.analytics-section-sub {
+  margin-top: 4px;
+  max-width: 720px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ---------- Stat cards ---------- */
+
+.analytics-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #64748b);
+}
+
+.analytics-stat-unit {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ---------- Chart ---------- */
 
 .analytics-chart-card {
   padding: var(--space-6);
+}
+
+.analytics-chart-note {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 4px solid #22c55e;
+  background: var(--bg-input, #f8fafc);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #475569);
+}
+
+/* ---------- Crop ranking ---------- */
+
+.analytics-ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analytics-rank-row {
+  display: grid;
+  grid-template-columns: 10px 72px 1fr 92px 44px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.analytics-rank-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.analytics-rank-name {
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+}
+
+.analytics-rank-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-input, #eef2f7);
+  overflow: hidden;
+}
+
+.analytics-rank-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.analytics-rank-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary, #475569);
+}
+
+.analytics-rank-share {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #0f172a);
+}
+
+@media (max-width: 640px) {
+  .analytics-rank-row {
+    grid-template-columns: 10px 60px 1fr 44px;
+  }
+
+  .analytics-rank-value {
+    display: none;
+  }
 }
