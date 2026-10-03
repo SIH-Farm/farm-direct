@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { farmers, mandiPriceHistory, getProductsByFarmer } from '../../data/mockData';
+import { farmers, mandiPriceHistory, getProductsByFarmer, formatCurrency } from '../../data/mockData';
 import { calculatePricing, MANDI_BENCHMARKS } from '../../utils/pricingEngine';
 import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import CropAdvisory from '../../components/CropAdvisory/CropAdvisory';
@@ -174,6 +174,26 @@ export default function FarmerPortal() {
     ? calculatePricing(formData.farmPrice, formData.cropName)
     : null;
 
+  // Derived from this farmer's own live listings. These cards previously carried
+  // hardcoded figures — a fixed earnings total and a "+38% vs Mandi" claim — which
+  // contradicted the bonus the pricing engine returns everywhere else in the app.
+  const listedValue = farmerProducts.reduce(
+    (total, product) => total + (Number(product.farmPrice) || 0) * (Number(product.quantity) || 0),
+    0
+  );
+  const listedQuantity = farmerProducts.reduce(
+    (total, product) => total + (Number(product.quantity) || 0),
+    0
+  );
+  const averageBonusPercent = farmerProducts.length
+    ? Math.round(
+        farmerProducts.reduce(
+          (total, product) => total + calculatePricing(product.farmPrice, product.cropName).farmerBonusPercent,
+          0
+        ) / farmerProducts.length
+      )
+    : 0;
+
   return (
     <div className="farmer-portal container">
       {/* Header */}
@@ -193,9 +213,11 @@ export default function FarmerPortal() {
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>💰</div>
           <div>
-            <div className="stat-value">₹1,84,500</div>
-            <div className="stat-label">Total Earnings (This Month)</div>
-            <span className="stat-change positive">↑ +38% vs Mandi</span>
+            <div className="stat-value">{formatCurrency(listedValue)}</div>
+            <div className="stat-label">Listed Produce Value</div>
+            {farmerProducts.length > 0 && (
+              <span className="stat-change positive">↑ +{averageBonusPercent}% vs Mandi agent</span>
+            )}
           </div>
         </div>
 
@@ -204,22 +226,29 @@ export default function FarmerPortal() {
           <div>
             <div className="stat-value">{farmerProducts.length}</div>
             <div className="stat-label">Active Crop Listings</div>
+            <span className="text-xs text-secondary">
+              {listedQuantity.toLocaleString('en-IN')} kg available to buyers
+            </span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#fef3c7', color: '#d97706' }}>🚚</div>
           <div>
-            <div className="stat-value">12</div>
-            <div className="stat-label">Direct Orders Processing</div>
+            <div className="stat-value">{activeFarmer.totalOrders.toLocaleString('en-IN')}</div>
+            <div className="stat-label">Orders Fulfilled</div>
+            <span className="text-xs text-secondary">Selling since {activeFarmer.memberSince}</span>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#f3e8ff', color: '#9333ea' }}>🤝</div>
+          <div className="stat-icon" style={{ background: '#f3e8ff', color: '#9333ea' }}>⭐</div>
           <div>
-            <div className="stat-value">8,500</div>
-            <div className="stat-label">FPO Collective Members</div>
+            <div className="stat-value">{activeFarmer.rating}</div>
+            <div className="stat-label">Buyer Rating</div>
+            <span className="text-xs text-secondary">
+              {activeFarmer.verified ? '✓ Identity verified' : '⚠ Verification pending'}
+            </span>
           </div>
         </div>
       </div>

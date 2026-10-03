@@ -19,6 +19,23 @@ export const MANDI_BENCHMARKS = {
   sugarcane: { crop: 'Sugarcane', mandiPrice: 3.5, avgRetail: 8 },
 };
 
+/** Strips case, spaces and punctuation so "Black Pepper" and "blackpepper" agree. */
+const normalizeCropName = (name = '') => name.toLowerCase().replace(/[^a-z]/g, '');
+
+/**
+ * Resolves the Mandi benchmark for a crop name.
+ * Multi-word crops are keyed by their short name in MANDI_BENCHMARKS
+ * ("Black Pepper" -> `pepper`, "Green Chilli" -> `chilli`), so a plain key lookup
+ * silently misses them and invents a benchmark instead. Matching against the
+ * benchmark's own `crop` label as well keeps those crops honest.
+ */
+function findBenchmark(cropName) {
+  const normalized = normalizeCropName(cropName);
+  if (!normalized) return null;
+  if (MANDI_BENCHMARKS[normalized]) return MANDI_BENCHMARKS[normalized];
+  return Object.values(MANDI_BENCHMARKS).find(b => normalizeCropName(b.crop) === normalized) || null;
+}
+
 /**
  * Calculates transparent price metrics for a given crop and farmer price.
  * @param {number} farmPrice - Payout requested by farmer (₹/kg)
@@ -27,8 +44,7 @@ export const MANDI_BENCHMARKS = {
  */
 export function calculatePricing(farmPrice, cropName = '') {
   const numericFarmPrice = Number(farmPrice) || 0;
-  const key = cropName.toLowerCase().replace(/\s+/g, '');
-  const benchmark = MANDI_BENCHMARKS[key] || {
+  const benchmark = findBenchmark(cropName) || {
     mandiPrice: Math.round(numericFarmPrice * 0.85),
     avgRetail: Math.round(numericFarmPrice * 1.8),
   };

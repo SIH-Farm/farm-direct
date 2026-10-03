@@ -18,7 +18,7 @@ Farmer → FarmDirect Platform → Consumer
 (₹20/kg)    (+₹8)              (₹28/kg)
 ```
 
-**Result**: Farmers earn 35% more, consumers pay 42% less.
+**Result**: Farmers earn **67%** more than through a Mandi commission agent, and consumers pay **45%** less than supermarket retail — both averaged across the 15 crops priced by the shared pricing engine (`apps/client/src/utils/pricingEngine.js`), which is also what the landing page and marketplace render from.
 
 ## Tech Stack
 

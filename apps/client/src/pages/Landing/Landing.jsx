@@ -2,24 +2,60 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { platformStats, formatCurrency } from '../../data/mockData';
+import { calculatePricing, MANDI_BENCHMARKS } from '../../utils/pricingEngine';
 import './Landing.css';
+
+const CALC_CROPS = Object.entries(MANDI_BENCHMARKS).map(([key, bench]) => ({
+  key,
+  label: bench.crop,
+}));
+
+// Headline impact figures are derived from the engine over the platform's benchmark
+// price table (each crop priced at its own Mandi rate) rather than typed in by hand,
+// so the hero can never drift from what the calculator and marketplace actually return.
+const BENCHMARK_ENTRIES = Object.values(MANDI_BENCHMARKS);
+const averageOverBenchmarks = (pick) => Math.round(
+  BENCHMARK_ENTRIES.reduce((sum, b) => sum + pick(calculatePricing(b.mandiPrice, b.crop)), 0) /
+    BENCHMARK_ENTRIES.length
+);
+const AVG_FARMER_UPLIFT = averageOverBenchmarks(p => p.farmerBonusPercent);
+const AVG_CONSUMER_SAVING = averageOverBenchmarks(p => p.consumerSavingPercent);
 
 export default function Landing() {
   const { t } = useApp();
   const [calcQuantity, setCalcQuantity] = useState(100);
-  const [calcCropPrice, setCalcCropPrice] = useState(25); // ₹25/kg farmer cost
+  const [calcCrop, setCalcCrop] = useState('tomato');
+  const [calcCropPrice, setCalcCropPrice] = useState(MANDI_BENCHMARKS.tomato.mandiPrice);
 
-  // Intermediary math
-  const traditionalFarmerEarning = calcQuantity * calcCropPrice;
-  const traditionalConsumerCost = calcQuantity * (calcCropPrice * 2.4); // 140% markup through 4 middlemen
+  // Every figure on this page comes from the SAME pricing engine that renders the
+  // marketplace cards, cart totals and order receipts — so the landing page can
+  // never quote a number the rest of the app disagrees with.
+  const pricing = calculatePricing(calcCropPrice, calcCrop);
+
+  // Traditional chain: the farmer is squeezed down to the Mandi net payout while the
+  // consumer still pays supermarket retail. The gap is what the middlemen absorb.
+  const traditionalFarmerEarning = calcQuantity * pricing.mandiNetFarmerPayout;
+  const traditionalConsumerCost = calcQuantity * pricing.retailPrice;
   const traditionalMiddlemanProfit = traditionalConsumerCost - traditionalFarmerEarning;
 
-  // FarmDirect math
-  const directFarmerEarning = calcQuantity * (calcCropPrice * 1.35); // +35% earnings
-  const directConsumerCost = calcQuantity * (calcCropPrice * 1.35 * 1.25); // direct platform price
+  // FarmDirect: the farmer keeps the price they set; the buyer pays it plus the 8% fee.
+  const directFarmerEarning = calcQuantity * pricing.farmPrice;
+  const directConsumerCost = calcQuantity * pricing.platformPrice;
 
   const farmerBonus = directFarmerEarning - traditionalFarmerEarning;
   const consumerSavings = traditionalConsumerCost - directConsumerCost;
+
+  // Sliders follow the selected crop's real price range instead of a fixed ₹10–100,
+  // which would be meaningless for coffee, pepper or cumin.
+  const priceFloor = Math.max(1, Math.round(pricing.mandiPrice * 0.4));
+  const priceCeiling = Math.max(priceFloor + 1, Math.round(pricing.mandiPrice * 1.8));
+
+  const handleCropChange = (key) => {
+    setCalcCrop(key);
+    const bench = MANDI_BENCHMARKS[key];
+    // Whole rupees only: the range thumb must land exactly on the displayed price.
+    if (bench) setCalcCropPrice(Math.round(bench.mandiPrice));
+  };
 
   return (
     <div className="landing-page">
@@ -53,11 +89,11 @@ export default function Landing() {
           {/* Stats Bar */}
           <div className="hero-stats-grid">
             <div className="hero-stat-card">
-              <span className="hero-stat-num">+35%</span>
+              <span className="hero-stat-num">+{AVG_FARMER_UPLIFT}%</span>
               <span className="hero-stat-label">{t('ui.landing.statEarnings')}</span>
             </div>
             <div className="hero-stat-card">
-              <span className="hero-stat-num">-42%</span>
+              <span className="hero-stat-num">-{AVG_CONSUMER_SAVING}%</span>
               <span className="hero-stat-label">{t('ui.landing.statPrices')}</span>
             </div>
             <div className="hero-stat-card">
@@ -84,7 +120,24 @@ export default function Landing() {
           </div>
 
           <div className="calculator-card card">
-            <div className="calc-inputs grid grid-2">
+            <div className="calc-inputs grid grid-3">
+              <div className="form-group">
+                <label className="form-label">Crop (sets the Mandi &amp; retail benchmark)</label>
+                <select
+                  className="form-select"
+                  value={calcCrop}
+                  onChange={(e) => handleCropChange(e.target.value)}
+                  id="calc-crop-select"
+                >
+                  {CALC_CROPS.map(c => (
+                    <option key={c.key} value={c.key}>{c.label}</option>
+                  ))}
+                </select>
+                <div className="calc-slider-value">
+                  Mandi ₹{pricing.mandiPrice}/kg · Retail ₹{pricing.retailPrice}/kg
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Harvest Produce Quantity (kg)</label>
                 <input
@@ -100,15 +153,16 @@ export default function Landing() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Base Harvest Cost per kg (₹)</label>
+                <label className="form-label">Farmer's Set Price (₹/kg)</label>
                 <input
                   type="range"
-                  min="10"
-                  max="100"
-                  step="5"
+                  min={priceFloor}
+                  max={priceCeiling}
+                  step={1}
                   value={calcCropPrice}
                   onChange={(e) => setCalcCropPrice(Number(e.target.value))}
                   className="calc-slider"
+                  id="calc-price-slider"
                 />
                 <div className="calc-slider-value">₹{calcCropPrice}/kg</div>
               </div>
@@ -122,11 +176,9 @@ export default function Landing() {
                   <span className="badge badge-red">4 Intermediaries</span>
                 </div>
                 <div className="calc-chain">
-                  <div className="calc-node">🌾 Farmer Receives: <strong>{formatCurrency(traditionalFarmerEarning)}</strong> (₹{calcCropPrice}/kg)</div>
-                  <div className="calc-arrow">↓ Commission Agent (+20%)</div>
-                  <div className="calc-arrow">↓ Wholesaler (+40%)</div>
-                  <div className="calc-arrow">↓ Local Retailer (+80%)</div>
-                  <div className="calc-node red">🛒 Consumer Pays: <strong>{formatCurrency(traditionalConsumerCost)}</strong> (₹{(traditionalConsumerCost/calcQuantity).toFixed(1)}/kg)</div>
+                  <div className="calc-node">🌾 Farmer Receives: <strong>{formatCurrency(traditionalFarmerEarning)}</strong> (₹{pricing.mandiNetFarmerPayout}/kg net of Mandi commission)</div>
+                  <div className="calc-arrow">↓ Commission Agent → Wholesaler → Local Retailer</div>
+                  <div className="calc-node red">🛒 Consumer Pays: <strong>{formatCurrency(traditionalConsumerCost)}</strong> (₹{pricing.retailPrice}/kg)</div>
                 </div>
                 <div className="calc-loss-note">
                   ⚠️ Intermediary Markup: <strong>{formatCurrency(traditionalMiddlemanProfit)}</strong>
@@ -137,16 +189,16 @@ export default function Landing() {
               <div className="calc-column direct">
                 <div className="calc-col-header">
                   <h3>FarmDirect Platform</h3>
-                  <span className="badge badge-green">Direct AI Match</span>
+                  <span className="badge badge-green">Same engine as every listing</span>
                 </div>
                 <div className="calc-chain">
-                  <div className="calc-node green">🌾 Farmer Receives: <strong>{formatCurrency(directFarmerEarning)}</strong> (₹{(directFarmerEarning/calcQuantity).toFixed(1)}/kg)</div>
-                  <div className="calc-arrow green">↓ Direct Quality & Logistics Route Optimization</div>
-                  <div className="calc-node green">🛒 Consumer Pays: <strong>{formatCurrency(directConsumerCost)}</strong> (₹{(directConsumerCost/calcQuantity).toFixed(1)}/kg)</div>
+                  <div className="calc-node green">🌾 Farmer Receives: <strong>{formatCurrency(directFarmerEarning)}</strong> (₹{pricing.farmPrice}/kg — the price they set)</div>
+                  <div className="calc-arrow green">↓ Quality check &amp; route optimisation (+₹{pricing.platformFee}/kg platform fee)</div>
+                  <div className="calc-node green">🛒 Consumer Pays: <strong>{formatCurrency(directConsumerCost)}</strong> (₹{pricing.platformPrice}/kg)</div>
                 </div>
                 <div className="calc-gain-banner">
-                  <div>🎉 Farmer Earns Extra: <strong>+{formatCurrency(farmerBonus)}</strong></div>
-                  <div>💚 Consumer Saves: <strong>{formatCurrency(consumerSavings)}</strong></div>
+                  <div>🎉 Farmer Earns Extra: <strong>+{formatCurrency(farmerBonus)}</strong> ({pricing.farmerBonusPercent}% vs Mandi agent)</div>
+                  <div>💚 Consumer Saves: <strong>{formatCurrency(consumerSavings)}</strong> ({pricing.consumerSavingPercent}% vs supermarket)</div>
                 </div>
               </div>
             </div>
