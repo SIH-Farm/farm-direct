@@ -1,0 +1,21 @@
+# Render blueprint — FREE tier deployment for the FarmDirect API.
+#
+# Why Render: the API keeps its data in memory (apps/server/index.js), so it needs a
+# persistent Node process. Serverless hosts (Vercel/Netlify functions) would give each
+# request a fresh instance and posted listings would vanish immediately.
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo. Render reads this file.
+services:
+  - type: web
+    name: farmdirect-api
+    runtime: node
+    plan: free
+    # Singapore is the closest free region to India.
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # PORT is injected by Render automatically; the server already reads process.env.PORT.

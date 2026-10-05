@@ -1,0 +1,16 @@
+# Netlify config — free static hosting for the FarmDirect client.
+#
+# Two ways to use this:
+#   1. Drag-and-drop: drag apps/client/dist onto https://app.netlify.com/drop
+#      (no git needed — the SPA fallback travels inside the build via public/_redirects)
+#   2. Git deploy: connect this repo and Netlify reads the settings below.
+[build]
+  command = "npm run build"
+  publish = "apps/client/dist"
+
+# SPA fallback so deep links (/analytics, /logistics, /marketplace) survive a hard
+# refresh instead of 404ing — react-router handles the routing client-side.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
