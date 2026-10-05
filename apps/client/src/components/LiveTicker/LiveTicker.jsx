@@ -5,7 +5,7 @@ import { apiGet } from '../../utils/api';
 const DEFAULT_FEED = [
   "🔔 Rajesh Patil just listed 500kg Cherry Tomatoes (Nashik)",
   "🛒 Order #ORD082 placed: 200kg Sharbati Wheat from Amritsar",
-  "📈 Onion Mandi Benchmark updated to ₹22/kg — FarmDirect payout ₹18/kg (+35% vs agent)",
+  "📈 Onion Mandi Benchmark updated to ₹22/kg — FarmDirect farmers net +67% vs agent cuts",
   "🌱 Sahyadri FPO listed 2,000kg Nashik Red Onions",
   "🚚 Logistics Dispatch: Route #RT-402 in transit from Sinnar to Pune Hub",
   "✨ Lakshmi Devi added 200kg Organic Arabica Coffee (Coorg)",

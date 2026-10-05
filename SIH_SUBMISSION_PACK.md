@@ -12,7 +12,7 @@
 Include these official Indian Agritech initiatives in your PPT & video to score maximum points with SIH Ministry evaluators:
 
 1. **Agmarknet & e-NAM Integration**: Live simulated pricing engine calibrated against official Ministry Mandi benchmark prices (`pricingEngine.js`).
-2. **Doubling Farmers' Income (DFI Mandate)**: Direct 100% payout to farmer UPI bank accounts increases net farm income by **35% to 48%** by bypassing 5 layers of commission agents.
+2. **Doubling Farmers' Income (DFI Mandate)**: Direct payout to farmer UPI bank accounts increases net farm income by **67%** by bypassing 5 layers of commission agents.
 3. **10,000 FPOs Scheme Alignment**: Dedicated **FPO Collective Procurement Portal** (`BulkBuyer.jsx`) allowing FPOs to aggregate smallholder farmers' produce and submit bulk quotes.
 4. **PM Digital Saksharta (Vernacular Inclusion)**: **Hindi Voice Input Dictation Assistant (`बोलकर दर्ज करें`)** solving rural digital literacy for non-literate smallholders.
 5. **ONDC (Open Network for Digital Commerce)**: Designed as an open protocol architecture ready to interface with ONDC Agri gateways.
@@ -65,15 +65,15 @@ Use this exact 6-slide structure aligned with the official SIH evaluation templa
 
 ### Slide 5: Business Model & Financial Viability
 * **Unit Economics (per 100 kg Tomatoes)**:
-  * Consumer Pays: ₹2,700 (₹27/kg) — **Saves 45% vs Supermarket**
-  * Direct Farmer Payout: ₹2,500 (₹25/kg) — **+35% higher than Mandi Net**
+  * Consumer Pays: ₹2,700 (₹27/kg) — **Saves 53% vs Supermarket**
+  * Direct Farmer Payout: ₹2,500 (₹25/kg) — **+67% higher than Mandi Net (₹15/kg)**
   * Platform Fee: ₹200 (8%) ➔ **Logistics (45%), Quality Cert (20%), Tech (15%), Net Profit (20%)**
 * **Scalability**: Zero inventory liability; platform operates as a lean digital aggregation layer.
 
 ---
 
 ### Slide 6: Impact, SIH Alignment & Future Roadmap
-* **Social Impact**: Empowers 10,000+ FPO members, reduces food waste by 80%, increases rural bank liquidity via instant UPI payouts.
+* **Social Impact**: Empowers 10,000+ FPO members, cuts post-harvest waste by 28%, increases rural bank liquidity via instant UPI payouts.
 * **Phase 2 (Immediate)**: ONDC Protocol Gateway Integration & PM-KISAN database sync.
 * **Phase 3 (Expansion)**: Hardware IoT Cold Storage Telemetry & Computer Vision AI Produce Quality Assaying.
 

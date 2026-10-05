@@ -25,7 +25,7 @@ When an evaluator clicks your link (`http://your-demo-url.com` or Vercel/Netlify
 
 ### Slide 1: Hero Title & Quick Links (The "First Impression")
 * **Title**: **FarmDirect — Direct Farm-to-Fork Marketplace with Transparent Pricing**
-* **Subtitle**: Eliminating Agritech Middlemen & Increasing Farmer Income by 35%
+* **Subtitle**: Eliminating Agritech Middlemen & Increasing Farmer Income by 67%
 * **Prominent Call-to-Action Boxes**:
   * 🌐 **Live Demo App**: `[Your Deployed URL]`
   * 📱 **Scan QR Code to Test Mobile**: `[Insert QR Code Image]`
@@ -58,10 +58,10 @@ When an evaluator clicks your link (`http://your-demo-url.com` or Vercel/Netlify
 * **Visual Matrix**:
   | Price Metric | Traditional Mandi | FarmDirect Model | Benefit |
   |---|---|---|---|
-  | **Farmer Payout** | ₹15/kg (after agent cuts) | **₹25/kg Direct** | 🟢 **+35% Farmer Income** |
-  | **Middleman Margin** | 100-150% markup | **0% Middlemen** | 🟢 **Direct Trade** |
+  | **Farmer Payout** | ₹15/kg (after agent cuts) | **₹25/kg Direct** | 🟢 **+67% Farmer Income** |
+  | **Middleman Margin** | 120% – 180% markup | **0% Middlemen** | 🟢 **Direct Trade** |
   | **Platform Operations** | Unclear commission | **8% Transparent Fee** | 🟢 **Logistics & Quality** |
-  | **Consumer Price** | ₹58/kg (Supermarket) | **₹27/kg** | 🟢 **45% Consumer Savings** |
+  | **Consumer Price** | ₹58/kg (Supermarket) | **₹27/kg** | 🟢 **53% Consumer Savings** |
 
 ---
 

@@ -40,9 +40,9 @@ Why FarmDirect wins over traditional Mandis and traditional supermarket retailer
 |---|---|---|---|
 | **Farmer Payout** | ₹ 15 / kg *(After 40% agent & tax cuts)* | ₹ 18 / kg *(Fixed corporate contract)* | **₹ 25 / kg** *(100% direct asking price)* |
 | **Middleman Markup** | 120% – 180% | 150% – 200% | **0% Middlemen** *(Direct P2P/B2B)* |
-| **Consumer Price** | ₹ 55 – ₹ 60 / kg | ₹ 58 / kg | **₹ 27 / kg** *(45% cheaper than store)* |
+| **Consumer Price** | ₹ 55 – ₹ 60 / kg | ₹ 58 / kg | **₹ 27 / kg** *(53% cheaper than store)* |
 | **Harvest to Table Time** | 72 – 96 Hours *(High spoilage)* | 48 – 72 Hours | **< 24 Hours** *(Direct dispatch)* |
-| **Farmer Profitability** | ⚠️ Low / Negative | 🟡 Bare Minimal | 🟢 **+35% to +48% Extra Payout** |
+| **Farmer Profitability** | ⚠️ Low / Negative | 🟡 Bare Minimal | 🟢 **+67% Extra Payout** |
 
 ---
 
