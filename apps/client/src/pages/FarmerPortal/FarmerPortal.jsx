@@ -88,7 +88,6 @@ export default function FarmerPortal() {
       setFarmerProducts(prev => [created, ...prev]);
       addToast(`✅ Produce Listing Posted Live! ${payload.quantity}${payload.unit} ${payload.cropName}`, 'success');
     } catch (err) {
-      const offline = !navigator.onLine;
       const newListing = {
         id: `P${Date.now()}`,
         ...payload,
@@ -99,8 +98,10 @@ export default function FarmerPortal() {
       };
       setFarmerProducts(prev => [newListing, ...prev]);
       addToast(
-        offline
-          ? '⚠️ Offline — listing saved locally for this session only.'
+        // navigator.onLine is true whenever the browser has any connection — even when
+        // no API is deployed — so key off whether the request actually reached one.
+        err.unreachable
+          ? '⚠️ Demo mode — listing saved for this browser session only.'
           : `⚠️ Could not publish: ${err.message}`,
         'warning'
       );
@@ -133,6 +134,13 @@ export default function FarmerPortal() {
       setFarmerProducts(prev => prev.filter(p => p.id !== id));
       addToast('Listing removed successfully', 'info');
     } catch (err) {
+      if (err.unreachable) {
+        // Static demo with no API — there is no server to confirm against, so drop it
+        // locally rather than surfacing an error the user has no way to act on.
+        setFarmerProducts(prev => prev.filter(p => p.id !== id));
+        addToast('Demo mode — listing removed for this browser session only.', 'info');
+        return;
+      }
       // Only drop it from the UI if the server actually confirmed the delete.
       addToast(`Could not remove listing: ${err.message}`, 'error');
     }

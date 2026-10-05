@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { apiPost } from '../../utils/api';
 import { useApp } from '../../context/AppContext';
+import { calculatePricing } from '../../utils/pricingEngine';
 import './CheckoutModal.css';
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -37,19 +38,49 @@ export default function CheckoutModal({
   const platformFee = round2(totalAmount - farmerPayout);
   const totalUnits = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Builds the same receipt shape the server returns, using the same shared pricing
+  // engine — so a demo-mode receipt can never disagree with the cart that produced it.
+  // Only used when no API is reachable (e.g. static-only hosting).
+  const buildLocalOrder = () => ({
+    id: `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
+    items: cartItems.map(item => {
+      const farmPrice = Number(item.farmPrice) || 0;
+      const { platformPrice } = calculatePricing(farmPrice, item.cropName);
+      return {
+        productId: item.id || item.productId,
+        cropName: item.cropName,
+        quantity: item.quantity,
+        unit: item.unit || 'kg',
+        farmerName: item.farmerName,
+        farmPrice,
+        lineTotal: round2(platformPrice * item.quantity),
+      };
+    }),
+    totalAmount,
+    farmerPayout,
+    platformFee,
+  });
+
   const handlePay = async () => {
     setLoading(true);
     setError('');
     try {
-      // The order is really created server-side; stock is reserved and the payout
-      // figures below come back from the API rather than being faked in the browser.
-      const order = await apiPost('/orders', {
-        buyerName: 'FarmDirect Consumer',
-        items: cartItems.map(item => ({
-          productId: item.id || item.productId,
-          quantity: item.quantity,
-        })),
-      });
+      // The order is created server-side when an API is available (stock reserved,
+      // payout figures returned by the API). If none is reachable, build the order
+      // locally instead of dead-ending the demo on an error the user cannot fix.
+      let order;
+      try {
+        order = await apiPost('/orders', {
+          buyerName: 'FarmDirect Consumer',
+          items: cartItems.map(item => ({
+            productId: item.id || item.productId,
+            quantity: item.quantity,
+          })),
+        });
+      } catch (err) {
+        if (!err.unreachable) throw err; // a real rejection (e.g. item out of stock)
+        order = buildLocalOrder();
+      }
 
       setReceiptData({
         ...order,
